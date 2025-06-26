@@ -315,6 +315,12 @@ body.admin-page {
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link <?php echo $current_page === 'advanced_tool_manager' ? 'active' : ''; ?>" href="dashboard.php?page=advanced_tool_manager">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>Advanced Manager</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link <?php echo $current_page === 'feedback' ? 'active' : ''; ?>" href="dashboard.php?page=feedback">
                                     <i class="fas fa-comments"></i>
                                     <span>Feedback</span>
@@ -351,6 +357,22 @@ body.admin-page {
                     <?php
                     // Routing untuk halaman yang berbeda
                     switch ($current_page) {
+                        case 'advanced_tool_manager':
+                            echo '<div class="page-header">';
+                            echo '<h2><i class="fas fa-cogs me-2"></i>Advanced Tool Manager</h2>';
+                            echo '<nav aria-label="breadcrumb">';
+                            echo '<ol class="breadcrumb">';
+                            echo '<li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>';
+                            echo '<li class="breadcrumb-item active">Advanced Tool Manager</li>';
+                            echo '</ol>';
+                            echo '</nav>';
+                            echo '</div>';
+                            
+                            echo '<div class="advanced-manager-embedded">';
+                            include 'advanced_tool_manager.php';
+                            echo '</div>';
+                            break;
+                            
                         case 'tool_creator':
                             echo '<div class="page-header">';
                             echo '<h2><i class="fas fa-magic me-2"></i>Tool Creator</h2>';
@@ -772,8 +794,11 @@ body.admin-page {
                                         </div>
                                         <div class="card-body">
                                             <div class="d-grid gap-2">
-                                                <a href="dashboard.php?page=tool_creator" class="btn btn-primary">
-                                                    <i class="fas fa-magic me-2"></i>Buat Tool Baru (API Explorer)
+                                                <a href="dashboard.php?page=advanced_tool_manager" class="btn btn-primary">
+                                                    <i class="fas fa-cogs me-2"></i>Advanced Tool Manager
+                                                </a>
+                                                <a href="dashboard.php?page=tool_creator" class="btn btn-outline-primary">
+                                                    <i class="fas fa-magic me-2"></i>Basic Tool Creator
                                                 </a>
                                                 <a href="dashboard.php?page=tools" class="btn btn-outline-primary">
                                                     <i class="fas fa-tools me-2"></i>Kelola Tools
