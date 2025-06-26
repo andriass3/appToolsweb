@@ -187,6 +187,72 @@ body.admin-page {
     margin-bottom: 1.5rem !important;
 }
 
+/* Form manage tool styles */
+#manageToolFormSection {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+
+#manageToolFormSection.form-visible {
+    max-height: 1000px; 
+    overflow: visible;
+}
+
+.form-manage-tool .card-header,
+.list-tools-card .card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #eff2f5;
+}
+
+.form-manage-tool .card-header h5,
+.list-tools-card .card-header h5 {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.form-manage-tool .form-control-lg,
+.form-manage-tool .form-select-lg {
+    font-size: 1rem;
+    padding: 0.65rem 1rem;
+}
+
+.form-manage-tool .input-group-text {
+    font-size: 1rem;
+}
+
+.admin-tools-table th {
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa !important;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-tools-table td {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.admin-tools-table .badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.admin-tools-table .action-buttons .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.admin-tools-table .action-buttons .btn i {
+    font-size: 0.9em;
+}
+
+.admin-tools-table tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .admin-sidebar {
@@ -201,6 +267,21 @@ body.admin-page {
     .sidebar-nav .nav-link {
         margin: 0.25rem 0.5rem;
         padding: 0.5rem 1rem;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    .admin-header h1 {
+        margin-bottom: 0.5rem !important;
+    }
+    .stat-card .card-body {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    .stat-icon {
+        margin-bottom: 0.75rem;
     }
 }
 </style>
@@ -297,8 +378,250 @@ body.admin-page {
                             echo '</nav>';
                             echo '</div>';
                             
-                            // Include tool management content here
-                            echo '<p class="text-muted">Halaman kelola tools akan ditambahkan di sini.</p>';
+                            // Include the complete tool management functionality
+                            ?>
+                            <!-- Form untuk Menambah/Edit Tool -->
+                            <div class="card form-manage-tool mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Tambah Tool Baru</h5>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="toggleFormBtn">
+                                        <i class="fas fa-chevron-down me-1"></i>Tampilkan Form
+                                    </button>
+                                </div>
+                                <div class="card-body" id="manageToolFormSection">
+                                    <form action="tool_actions.php" method="POST" id="toolForm">
+                                        <input type="hidden" name="action" value="add_tool" id="formAction">
+                                        <input type="hidden" name="tool_id" id="toolId">
+                                        
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="toolName" class="form-label">Nama Tool</label>
+                                                <div class="input-group input-group-lg">
+                                                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                                    <input type="text" class="form-control" id="toolName" name="tool_name" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="toolSlug" class="form-label">Slug (URL)</label>
+                                                <div class="input-group input-group-lg">
+                                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                                    <input type="text" class="form-control" id="toolSlug" name="tool_slug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required>
+                                                </div>
+                                                <small class="text-muted">Hanya huruf kecil, angka, dan tanda hubung. Contoh: my-tool</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mt-2">
+                                            <div class="col-md-6">
+                                                <label for="toolIcon" class="form-label">Ikon (Font Awesome)</label>
+                                                <div class="input-group input-group-lg">
+                                                    <span class="input-group-text"><i class="fas fa-icons"></i></span>
+                                                    <input type="text" class="form-control" id="toolIcon" name="tool_icon" value="fas fa-tools" required>
+                                                </div>
+                                                <small class="text-muted">Contoh: fas fa-star, fab fa-github</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="toolStatus" class="form-label">Status</label>
+                                                <select class="form-select form-select-lg" id="toolStatus" name="tool_status" required>
+                                                    <option value="active">Aktif</option>
+                                                    <option value="maintenance">Maintenance</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <label for="toolDescription" class="form-label">Deskripsi</label>
+                                            <textarea class="form-control" id="toolDescription" name="tool_description" rows="3" required></textarea>
+                                        </div>
+                                        
+                                        <div class="mt-4 d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                                <i class="fas fa-save me-2"></i>Simpan Tool
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-lg" id="cancelBtn" style="display: none;">
+                                                <i class="fas fa-times me-2"></i>Batal
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Daftar Tools -->
+                            <div class="card list-tools-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Daftar Tools (<?php echo $total_tools; ?>)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (!empty($tools)): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover admin-tools-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nama Tool</th>
+                                                        <th>Slug</th>
+                                                        <th>Status</th>
+                                                        <th>Deskripsi</th>
+                                                        <th width="200">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($tools as $tool): ?>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="<?php echo htmlspecialchars($tool['icon'] ?? 'fas fa-tools'); ?> me-2 text-primary"></i>
+                                                                    <strong><?php echo htmlspecialchars($tool['name'] ?? 'Nama Tool'); ?></strong>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <code><?php echo htmlspecialchars($tool['slug'] ?? ''); ?></code>
+                                                            </td>
+                                                            <td>
+                                                                <?php if (($tool['status'] ?? '') === 'active'): ?>
+                                                                    <span class="badge bg-success">Aktif</span>
+                                                                <?php else: ?>
+                                                                    <span class="badge bg-warning">Maintenance</span>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td>
+                                                                <span class="text-muted"><?php echo htmlspecialchars(substr($tool['description'] ?? '', 0, 50)); ?>...</span>
+                                                            </td>
+                                                            <td>
+                                                                <div class="action-buttons">
+                                                                    <button class="btn btn-sm btn-outline-primary edit-tool-btn" 
+                                                                            data-id="<?php echo htmlspecialchars($tool['id'] ?? ''); ?>"
+                                                                            data-name="<?php echo htmlspecialchars($tool['name'] ?? ''); ?>"
+                                                                            data-slug="<?php echo htmlspecialchars($tool['slug'] ?? ''); ?>"
+                                                                            data-icon="<?php echo htmlspecialchars($tool['icon'] ?? ''); ?>"
+                                                                            data-description="<?php echo htmlspecialchars($tool['description'] ?? ''); ?>"
+                                                                            data-status="<?php echo htmlspecialchars($tool['status'] ?? ''); ?>"
+                                                                            title="Edit Tool">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                    
+                                                                    <form method="POST" action="tool_actions.php" class="d-inline">
+                                                                        <input type="hidden" name="action" value="toggle_maintenance">
+                                                                        <input type="hidden" name="tool_id" value="<?php echo htmlspecialchars($tool['id'] ?? ''); ?>">
+                                                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Toggle Status">
+                                                                            <i class="fas fa-power-off"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                    
+                                                                    <form method="POST" action="tool_actions.php" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus tool ini?')">
+                                                                        <input type="hidden" name="action" value="delete_tool">
+                                                                        <input type="hidden" name="tool_id" value="<?php echo htmlspecialchars($tool['id'] ?? ''); ?>">
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Tool">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Belum ada tools</h5>
+                                            <p class="text-muted">Mulai dengan menambahkan tool pertama Anda.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const toggleFormBtn = document.getElementById('toggleFormBtn');
+                                const formSection = document.getElementById('manageToolFormSection');
+                                const toolForm = document.getElementById('toolForm');
+                                const formAction = document.getElementById('formAction');
+                                const toolId = document.getElementById('toolId');
+                                const submitBtn = document.getElementById('submitBtn');
+                                const cancelBtn = document.getElementById('cancelBtn');
+                                const toolNameInput = document.getElementById('toolName');
+                                const toolSlugInput = document.getElementById('toolSlug');
+
+                                // Toggle form visibility
+                                toggleFormBtn.addEventListener('click', function() {
+                                    if (formSection.classList.contains('form-visible')) {
+                                        formSection.classList.remove('form-visible');
+                                        toggleFormBtn.innerHTML = '<i class="fas fa-chevron-down me-1"></i>Tampilkan Form';
+                                        resetForm();
+                                    } else {
+                                        formSection.classList.add('form-visible');
+                                        toggleFormBtn.innerHTML = '<i class="fas fa-chevron-up me-1"></i>Sembunyikan Form';
+                                    }
+                                });
+
+                                // Auto-generate slug from tool name
+                                toolNameInput.addEventListener('keyup', function() {
+                                    if (formAction.value === 'add_tool') { // Only auto-generate for new tools
+                                        toolSlugInput.value = createSlug(this.value);
+                                    }
+                                });
+
+                                function createSlug(str) {
+                                    return str
+                                        .toLowerCase()
+                                        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+                                        .replace(/[\s-]+/g, '-') // Replace spaces and multiple hyphens with single hyphen
+                                        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+                                }
+
+                                // Edit tool functionality
+                                document.querySelectorAll('.edit-tool-btn').forEach(btn => {
+                                    btn.addEventListener('click', function() {
+                                        const toolData = {
+                                            id: this.dataset.id,
+                                            name: this.dataset.name,
+                                            slug: this.dataset.slug,
+                                            icon: this.dataset.icon,
+                                            description: this.dataset.description,
+                                            status: this.dataset.status
+                                        };
+
+                                        // Fill form with tool data
+                                        formAction.value = 'edit_tool';
+                                        toolId.value = toolData.id;
+                                        document.getElementById('toolName').value = toolData.name;
+                                        document.getElementById('toolSlug').value = toolData.slug;
+                                        document.getElementById('toolIcon').value = toolData.icon;
+                                        document.getElementById('toolDescription').value = toolData.description;
+                                        document.getElementById('toolStatus').value = toolData.status;
+
+                                        // Update UI
+                                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Tool';
+                                        cancelBtn.style.display = 'inline-block';
+                                        
+                                        // Show form
+                                        formSection.classList.add('form-visible');
+                                        toggleFormBtn.innerHTML = '<i class="fas fa-chevron-up me-1"></i>Sembunyikan Form';
+                                        
+                                        // Disable slug editing for existing tools
+                                        toolSlugInput.readOnly = true;
+                                        toolSlugInput.style.backgroundColor = '#f8f9fa';
+                                    });
+                                });
+
+                                // Cancel edit
+                                cancelBtn.addEventListener('click', function() {
+                                    resetForm();
+                                });
+
+                                function resetForm() {
+                                    toolForm.reset();
+                                    formAction.value = 'add_tool';
+                                    toolId.value = '';
+                                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Tool';
+                                    cancelBtn.style.display = 'none';
+                                    toolSlugInput.readOnly = false;
+                                    toolSlugInput.style.backgroundColor = '';
+                                }
+                            });
+                            </script>
+                            <?php
                             break;
                             
                         case 'feedback':
@@ -312,8 +635,64 @@ body.admin-page {
                             echo '</nav>';
                             echo '</div>';
                             
-                            // Include feedback content here
-                            echo '<p class="text-muted">Halaman feedback akan ditambahkan di sini.</p>';
+                            // Include feedback content
+                            ?>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Daftar Feedback (<?php echo $total_feedback; ?>)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if (!empty($feedback)): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tanggal</th>
+                                                        <th>Tool</th>
+                                                        <th>Nama</th>
+                                                        <th>Saran</th>
+                                                        <th>IP Address</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach (array_reverse($feedback) as $item): ?>
+                                                        <tr>
+                                                            <td>
+                                                                <small class="text-muted"><?php echo htmlspecialchars($item['timestamp'] ?? ''); ?></small>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-primary"><?php echo htmlspecialchars($item['tool_name'] ?? 'Unknown'); ?></span>
+                                                            </td>
+                                                            <td>
+                                                                <strong><?php echo htmlspecialchars($item['critic_name'] ?? 'Anonim'); ?></strong>
+                                                            </td>
+                                                            <td>
+                                                                <div style="max-width: 300px;">
+                                                                    <?php echo htmlspecialchars(substr($item['suggestion'] ?? '', 0, 100)); ?>
+                                                                    <?php if (strlen($item['suggestion'] ?? '') > 100): ?>
+                                                                        <span class="text-muted">...</span>
+                                                                        <button class="btn btn-sm btn-link p-0" onclick="alert('<?php echo htmlspecialchars(addslashes($item['suggestion'] ?? '')); ?>')">Lihat Selengkapnya</button>
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <code><?php echo htmlspecialchars($item['ip_address'] ?? ''); ?></code>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Belum ada feedback</h5>
+                                            <p class="text-muted">Feedback dari pengguna akan muncul di sini.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php
                             break;
                             
                         default: // Dashboard
@@ -394,7 +773,7 @@ body.admin-page {
                                         <div class="card-body">
                                             <div class="d-grid gap-2">
                                                 <a href="dashboard.php?page=tool_creator" class="btn btn-primary">
-                                                    <i class="fas fa-magic me-2"></i>Buat Tool Baru
+                                                    <i class="fas fa-magic me-2"></i>Buat Tool Baru (API Explorer)
                                                 </a>
                                                 <a href="dashboard.php?page=tools" class="btn btn-outline-primary">
                                                     <i class="fas fa-tools me-2"></i>Kelola Tools
