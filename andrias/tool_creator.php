@@ -1,17 +1,31 @@
 <?php
-// Tentukan judul halaman
-$page_title = "Buat Tool Baru (API Explorer)";
-// Path relatif dari folder 'andrias' ke root direktori
-$path_prefix = '../'; 
+// Cek apakah ini dipanggil dari dashboard atau diakses langsung
+$is_dashboard_page = isset($_GET['page']) && $_GET['page'] === 'tool_creator';
 
-// Asumsi tools.json, feedback.json, tool_usage_stats.json berada di root.
-$tools_file = $path_prefix . 'tools.json'; 
-
-// Sertakan file autentikasi admin
-require_once 'auth.php'; 
-// Sertakan file fungsi-fungsi yang sudah dipisahkan
-require_once 'includes/tool_functions.php';
-require_once 'includes/tool_template_content.php'; // Sertakan file template baru
+if (!$is_dashboard_page) {
+    // Jika diakses langsung, gunakan logika lama
+    $page_title = "Buat Tool Baru (API Explorer)";
+    $path_prefix = '../'; 
+    $tools_file = $path_prefix . 'tools.json'; 
+    
+    // Sertakan file autentikasi admin
+    require_once 'auth.php'; 
+    // Sertakan file fungsi-fungsi yang sudah dipisahkan
+    require_once 'includes/tool_functions.php';
+    require_once 'includes/tool_template_content.php';
+    
+    // Include header
+    include $path_prefix . 'header.php';
+} else {
+    // Jika dipanggil dari dashboard, tidak perlu include header/footer
+    $page_title = "Buat Tool Baru (API Explorer)";
+    $path_prefix = '../'; 
+    $tools_file = $path_prefix . 'tools.json'; 
+    
+    // Sertakan file fungsi-fungsi yang sudah dipisahkan
+    require_once 'includes/tool_functions.php';
+    require_once 'includes/tool_template_content.php';
+}
 
 // --- LOGIKA UTAMA UNTUK UJI API DAN SIMPAN TOOLS ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -92,19 +106,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $generated_output_html = $_POST['generated_output_html'] ?? ''; 
 
         if (empty($name) || empty($slug_input) || empty($icon) || empty($description) || empty($api_url_for_tool)) {
-            header('Location: tool_creator.php?error=' . urlencode('Semua field wajib diisi.'));
+            $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
+            header('Location: ' . $redirect_url . urlencode('Semua field wajib diisi.'));
             exit;
         }
 
         if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug_input)) {
-            header('Location: tool_creator.php?error=' . urlencode('Format slug tidak valid. Gunakan huruf kecil, angka, dan tanda hubung.'));
+            $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
+            header('Location: ' . $redirect_url . urlencode('Format slug tidak valid. Gunakan huruf kecil, angka, dan tanda hubung.'));
             exit;
         }
 
         $tools = get_all_tools_admin_creator($tools_file); 
         foreach ($tools as $existing_tool) {
             if ($existing_tool['slug'] === $slug_input) {
-                header('Location: tool_creator.php?error=' . urlencode('Slug sudah digunakan. Harap pilih slug lain.'));
+                $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
+                header('Location: ' . $redirect_url . urlencode('Slug sudah digunakan. Harap pilih slug lain.'));
                 exit;
             }
         }
@@ -129,7 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $save_result = save_tools_admin_creator($tools, $tools_file); 
 
         if ($save_result['status'] === 'error') {
-            header('Location: tool_creator.php?error=' . urlencode($save_result['message']));
+            $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
+            header('Location: ' . $redirect_url . urlencode($save_result['message']));
             exit;
         }
 
@@ -179,13 +197,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
              $message_appendix = '. Folder tool sudah ada. File index.php & api.php diperbarui.';
         }
-        header('Location: tool_creator.php?message=' . urlencode('Tool berhasil ditambahkan' . $message_appendix));
+        
+        $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&message=' : 'tool_creator.php?message=';
+        header('Location: ' . $redirect_url . urlencode('Tool berhasil ditambahkan' . $message_appendix));
         exit;
     }
 }
-
-// Sertakan file header dan footer HTML
-include $path_prefix . 'header.php';
 ?>
 
 <style>
@@ -409,7 +426,7 @@ include $path_prefix . 'header.php';
         <div id="toolCreationSection" class="form-section-hidden mt-5">
             <h4><i class="fas fa-cogs me-2"></i>Konfigurasi Tool Baru</h4>
             <p class="text-muted mb-4">Lengkapi detail untuk membuat tool berdasarkan respons API ini.</p>
-            <form id="newToolForm" method="POST" action="tool_creator.php">
+            <form id="newToolForm" method="POST" action="<?php echo $is_dashboard_page ? 'dashboard.php?page=tool_creator' : 'tool_creator.php'; ?>">
                 <input type="hidden" name="action" value="save_tool">
                 <input type="hidden" name="api_url_for_tool" id="api_url_for_tool">
                 <input type="hidden" name="api_method_for_tool" id="api_method_for_tool">
@@ -462,7 +479,7 @@ include $path_prefix . 'header.php';
                 <div class="mb-3">
                     <label for="generatedOutputHtml" class="form-label">Template Output HTML (Dapat Diedit):</label>
                     <textarea class="form-control" id="generatedOutputHtml" name="generated_output_html" rows="10" required></textarea>
-                    <small class="text-muted">Desain tampilan hasil tool Anda. Gunakan placeholder seperti <code>&lt;h3&gt;Judul: {{title}}&lt;/h3&gt;&lt;p&gt;Deskripsi: {{description}}&lt;/p&gt;</code></small>
+                    <small class="text-muted">Desain tampilan hasil tool Anda. Gunakan placeholder seperti <code><h3>Judul: {{title}}</h3><p>Deskripsi: {{description}}</p></code></small>
                     <button type="button" class="btn btn-info generate-ai-html-btn" id="generateHtmlWithAIBtn">
                         <i class="fas fa-robot me-2"></i>Buat HTML dengan AI
                     </button>
@@ -515,10 +532,10 @@ document.addEventListener('DOMContentLoaded', function() {
             str = String(str);
         }
         const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
+            '&': '&',
+            '<': '<',
+            '>': '>',
+            '"': '"',
             "'": '&#039;'
         };
         return str.replace(/[&<>"']/g, function(m) { return map[m]; });
@@ -663,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 htmlContent += `<div><strong>${htmlspecialcharsJS(path)}:</strong> {{${htmlspecialcharsJS(path)}}}</div>\n`; // Use placeholder
             });
         } else if (fullApiResponseData) {
-            htmlContent = `<p>Output HTML Anda akan tampil di sini. Anda bisa menggunakan <code>{{path.ke.nilai}}</code> sebagai placeholder dari data JSON yang Anda pilih.</p>\n<p>Contoh: <code>&lt;h1&gt;Judul: {{title}}&lt;/h1&gt;</code></p>`;
+            htmlContent = `<p>Output HTML Anda akan tampil di sini. Anda bisa menggunakan <code>{{path.ke.nilai}}</code> sebagai placeholder dari data JSON yang Anda pilih.</p>\n<p>Contoh: <code><h1>Judul: {{title}}</h1></code></p>`;
         } else {
             htmlContent = '<!-- Output HTML akan digenerate di sini -->';
         }
@@ -883,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         try {
-            const response = await fetch('tool_creator.php', {
+            const response = await fetch('<?php echo $is_dashboard_page ? "dashboard.php?page=tool_creator" : "tool_creator.php"; ?>', {
                 method: 'POST',
                 body: formData
             });
@@ -952,4 +969,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include $path_prefix . 'footer.php'; ?>
+<?php 
+// Hanya include footer jika bukan dashboard page
+if (!$is_dashboard_page) {
+    include $path_prefix . 'footer.php'; 
+}
+?>
