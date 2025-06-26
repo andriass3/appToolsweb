@@ -4,7 +4,7 @@ $is_dashboard_page = isset($_GET['page']) && $_GET['page'] === 'tool_creator';
 
 if (!$is_dashboard_page) {
     // Jika diakses langsung, gunakan logika lama
-    $page_title = "Buat Tool Baru (API Explorer)";
+    $page_title = "Advanced Tool Creator";
     $path_prefix = '../'; 
     $tools_file = $path_prefix . 'tools.json'; 
     
@@ -18,7 +18,7 @@ if (!$is_dashboard_page) {
     include $path_prefix . 'header.php';
 } else {
     // Jika dipanggil dari dashboard, tidak perlu include header/footer
-    $page_title = "Buat Tool Baru (API Explorer)";
+    $page_title = "Advanced Tool Creator";
     $path_prefix = '../'; 
     $tools_file = $path_prefix . 'tools.json'; 
     
@@ -26,6 +26,517 @@ if (!$is_dashboard_page) {
     require_once 'includes/tool_functions.php';
     require_once 'includes/tool_template_content.php';
 }
+
+// --- ENHANCED TEMPLATE CONTENT ---
+$enhanced_frontend_template = <<<'EOT'
+<?php 
+$page_title = "{{page_title}}";
+$tool_icon = "{{tool_icon}}";
+$tool_description = "{{tool_description}}";
+$path_prefix = '../../'; 
+
+$api_result_display_html = '';
+$error_message = null;
+
+// Include header
+if (file_exists($path_prefix . 'header.php')) {
+    include $path_prefix . 'header.php';
+} else {
+    echo "<!DOCTYPE html><html lang='id'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+    echo "<title>" . htmlspecialchars($page_title) . "</title>";
+    echo "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet'>";
+    echo "<link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css' rel='stylesheet'>";
+    echo "<style> body { padding-top: 20px; padding-bottom: 20px; background-color: #f8f9fa; } .footer { padding: 1rem 0; margin-top: 2rem; border-top: 1px solid #dee2e6; text-align: center; } </style>";
+    echo "</head><body><main class='container'>";
+}
+?>
+
+<style>
+    .tool-page-container .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: none;
+    }
+    .tool-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 0.75rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .tool-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .tool-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+    .form-section {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .form-section h4 {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    .result-display {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        min-height: 120px;
+        word-break: break-all;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .loading-spinner {
+        display: none; 
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .loading-spinner .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+    .parameter-group {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #667eea;
+    }
+    .parameter-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .parameter-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.75rem;
+    }
+    .success-animation {
+        animation: fadeInUp 0.5s ease-out;
+    }
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class='tool-page-container container my-5'>
+    <div class='tool-header'>
+        <h1><i class='<?php echo htmlspecialchars($tool_icon); ?> me-3'></i><?php echo $page_title; ?></h1>
+        <p><?php echo $tool_description; ?></p>
+    </div>
+
+    <div class="form-section">
+        <h4><i class="fas fa-cogs me-2"></i>Konfigurasi Tool</h4>
+        <?php if ($error_message): ?>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+        
+        <form id='toolForm' method="POST" action="api_proxy.php">
+            {{form_fields}}
+            
+            <div class="d-grid mt-4">
+                <button type='submit' class='btn btn-primary btn-lg' id="submitBtn">
+                    <i class="fas fa-rocket me-2"></i>Jalankan Tool
+                </button>
+            </div>
+        </form>
+
+        <div id='loadingIndicator' class='loading-spinner'>
+            <div class='spinner-border text-primary' role='status'></div>
+            <p class='text-muted mt-3'>Memproses permintaan...</p>
+        </div>
+
+        <div id='resultDisplay' class='mt-4' style='display:none;'>
+            <h4><i class="fas fa-check-circle me-2 text-success"></i>Hasil</h4>
+            <div class='result-display success-animation'>
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toolForm = document.getElementById('toolForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const resultContent = resultDisplay.querySelector('.result-display');
+
+    toolForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        // Show loading state
+        loadingIndicator.style.display = 'block';
+        resultDisplay.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+
+        const formData = new FormData(toolForm);
+
+        try {
+            const response = await fetch('api_proxy.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                let errorBody = {};
+                try {
+                    errorBody = await response.json();
+                } catch (e) {
+                    errorBody.message = `HTTP Error: ${response.status}`;
+                }
+                throw new Error(errorBody.message || `HTTP error! Status: ${response.status}`);
+            }
+
+            const apiResponse = await response.json();
+
+            if (apiResponse.status === 'success') {
+                resultContent.innerHTML = apiResponse.html_output;
+                resultDisplay.style.display = 'block';
+                resultDisplay.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                resultContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>${apiResponse.message || 'Terjadi kesalahan tidak dikenal.'}</div>`;
+                resultDisplay.style.display = 'block';
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            resultContent.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Terjadi kesalahan: ${error.message}</div>`;
+            resultDisplay.style.display = 'block';
+        } finally {
+            loadingIndicator.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-rocket me-2"></i>Jalankan Tool';
+        }
+    });
+});
+</script>
+
+<?php include $path_prefix . 'footer.php'; ?>
+EOT;
+
+$enhanced_api_proxy_template = <<<'EOT'
+<?php
+// Enhanced API Proxy for {{tool_name}}
+// This file securely handles external API calls and protects endpoint URLs
+
+header('Content-Type: application/json');
+
+// Security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+
+// Rate limiting configuration
+define('RATE_LIMIT_REQUESTS', 100);
+define('RATE_LIMIT_WINDOW', 3600); // 1 hour
+define('RATE_LIMIT_FILE', __DIR__ . '/rate_limit.json');
+
+// API Configuration (Hidden from users)
+$api_config = [
+    'url' => '{{api_url}}',
+    'method' => '{{api_method}}',
+    'timeout' => 30,
+    'max_retries' => 3,
+    'retry_delay' => 1000, // milliseconds
+    'headers' => [
+        'User-Agent' => 'ToolProxy/1.0',
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json'
+    ]
+];
+
+$response_mapping = json_decode('{{response_mapping}}', true);
+$parameter_config = json_decode('{{parameter_config}}', true);
+
+// Rate limiting function
+function checkRateLimit($ip) {
+    $rate_file = RATE_LIMIT_FILE;
+    $current_time = time();
+    
+    if (!file_exists($rate_file)) {
+        file_put_contents($rate_file, json_encode([]));
+    }
+    
+    $rate_data = json_decode(file_get_contents($rate_file), true) ?: [];
+    
+    // Clean old entries
+    $rate_data = array_filter($rate_data, function($entry) use ($current_time) {
+        return ($current_time - $entry['timestamp']) < RATE_LIMIT_WINDOW;
+    });
+    
+    // Count requests from this IP
+    $ip_requests = array_filter($rate_data, function($entry) use ($ip) {
+        return $entry['ip'] === $ip;
+    });
+    
+    if (count($ip_requests) >= RATE_LIMIT_REQUESTS) {
+        return false;
+    }
+    
+    // Add current request
+    $rate_data[] = ['ip' => $ip, 'timestamp' => $current_time];
+    file_put_contents($rate_file, json_encode($rate_data));
+    
+    return true;
+}
+
+// Input validation function
+function validateInput($value, $config) {
+    if ($config['required'] && empty($value)) {
+        return ['valid' => false, 'error' => 'Field is required'];
+    }
+    
+    if (!empty($value)) {
+        // Type validation
+        switch ($config['type']) {
+            case 'email':
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    return ['valid' => false, 'error' => 'Invalid email format'];
+                }
+                break;
+            case 'url':
+                if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                    return ['valid' => false, 'error' => 'Invalid URL format'];
+                }
+                break;
+            case 'number':
+                if (!is_numeric($value)) {
+                    return ['valid' => false, 'error' => 'Must be a number'];
+                }
+                break;
+        }
+        
+        // Length validation
+        if (isset($config['min_length']) && strlen($value) < $config['min_length']) {
+            return ['valid' => false, 'error' => "Minimum length is {$config['min_length']}"];
+        }
+        
+        if (isset($config['max_length']) && strlen($value) > $config['max_length']) {
+            return ['valid' => false, 'error' => "Maximum length is {$config['max_length']}"];
+        }
+        
+        // Pattern validation
+        if (isset($config['pattern']) && !preg_match($config['pattern'], $value)) {
+            return ['valid' => false, 'error' => 'Invalid format'];
+        }
+    }
+    
+    return ['valid' => true];
+}
+
+// Extract value from JSON response using path
+function extractValue($data, $path) {
+    if (empty($path)) return $data;
+    
+    $keys = explode('.', $path);
+    $current = $data;
+    
+    foreach ($keys as $key) {
+        if (preg_match('/(\w+)\[(\d+)\]/', $key, $matches)) {
+            $arrayKey = $matches[1];
+            $index = (int)$matches[2];
+            if (isset($current[$arrayKey][$index])) {
+                $current = $current[$arrayKey][$index];
+            } else {
+                return null;
+            }
+        } elseif (isset($current[$key])) {
+            $current = $current[$key];
+        } else {
+            return null;
+        }
+    }
+    
+    return $current;
+}
+
+// Main processing
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    exit;
+}
+
+// Rate limiting check
+$client_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+if (!checkRateLimit($client_ip)) {
+    http_response_code(429);
+    echo json_encode(['status' => 'error', 'message' => 'Rate limit exceeded. Please try again later.']);
+    exit;
+}
+
+// Validate and process input parameters
+$api_params = [];
+$validation_errors = [];
+
+foreach ($parameter_config as $param) {
+    $value = $_POST[$param['key']] ?? '';
+    
+    // Apply default value if empty and default exists
+    if (empty($value) && isset($param['default_value'])) {
+        $value = $param['default_value'];
+    }
+    
+    $validation = validateInput($value, $param);
+    if (!$validation['valid']) {
+        $validation_errors[] = "{$param['label']}: {$validation['error']}";
+        continue;
+    }
+    
+    if (!empty($value) || $param['required']) {
+        $api_params[$param['key']] = $value;
+    }
+}
+
+if (!empty($validation_errors)) {
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Validation failed: ' . implode(', ', $validation_errors)
+    ]);
+    exit;
+}
+
+// Make API request with retry logic
+$attempt = 0;
+$response = null;
+$last_error = null;
+
+while ($attempt < $api_config['max_retries']) {
+    $ch = curl_init();
+    
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $api_config['url'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => $api_config['timeout'],
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_HTTPHEADER => array_map(function($key, $value) {
+            return "$key: $value";
+        }, array_keys($api_config['headers']), $api_config['headers'])
+    ]);
+    
+    if ($api_config['method'] === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($api_params));
+    } else {
+        $url_with_params = $api_config['url'] . '?' . http_build_query($api_params);
+        curl_setopt($ch, CURLOPT_URL, $url_with_params);
+    }
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($curl_error) {
+        $last_error = "cURL Error: $curl_error";
+        $attempt++;
+        if ($attempt < $api_config['max_retries']) {
+            usleep($api_config['retry_delay'] * 1000);
+        }
+        continue;
+    }
+    
+    if ($http_code === 200) {
+        break;
+    }
+    
+    $last_error = "HTTP Error: $http_code";
+    $attempt++;
+    if ($attempt < $api_config['max_retries']) {
+        usleep($api_config['retry_delay'] * 1000);
+    }
+}
+
+if ($attempt >= $api_config['max_retries']) {
+    echo json_encode([
+        'status' => 'error', 
+        'message' => "API request failed after {$api_config['max_retries']} attempts. Last error: $last_error"
+    ]);
+    exit;
+}
+
+// Process API response
+$decoded_response = json_decode($response, true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Invalid JSON response from API'
+    ]);
+    exit;
+}
+
+// Extract mapped values and generate HTML output
+$extracted_values = [];
+foreach ($response_mapping as $mapping) {
+    $value = extractValue($decoded_response, $mapping['path']);
+    $extracted_values[$mapping['key']] = $value !== null ? $value : 'N/A';
+}
+
+// Generate HTML output using template
+$html_template = '{{html_template}}';
+$html_output = $html_template;
+
+foreach ($extracted_values as $key => $value) {
+    $placeholder = '{{' . $key . '}}';
+    $safe_value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    $html_output = str_replace($placeholder, $safe_value, $html_output);
+}
+
+// Return success response
+echo json_encode([
+    'status' => 'success',
+    'data' => $extracted_values,
+    'html_output' => $html_output
+]);
+EOT;
 
 // --- LOGIKA UTAMA UNTUK UJI API DAN SIMPAN TOOLS ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -35,7 +546,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json');
         $apiUrl = $_POST['api_url'] ?? '';
         $method = $_POST['method'] ?? 'GET';
-        $params = $_POST['params'] ?? []; // Array of {key, value}
+        $params = $_POST['params'] ?? [];
+        $headers = $_POST['headers'] ?? [];
 
         if (empty($apiUrl)) {
             echo json_encode(['status' => 'error', 'message' => 'URL API tidak boleh kosong.']);
@@ -45,7 +557,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // PERHATIAN: Di lingkungan produksi, aktifkan verifikasi SSL dengan sertifikat CA yang tepat.
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+        // Set custom headers
+        $curl_headers = ['User-Agent: ToolCreator/1.0'];
+        foreach ($headers as $header) {
+            if (!empty($header['key']) && !empty($header['value'])) {
+                $curl_headers[] = $header['key'] . ': ' . $header['value'];
+            }
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
 
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
@@ -56,8 +578,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
-            curl_setopt($ch, CURLOPT_URL, $apiUrl); 
-        } else { // GET
+            curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        } else {
             $queryString = '';
             if (!empty($params)) {
                 $getParams = [];
@@ -79,31 +601,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($curlError) {
             echo json_encode(['status' => 'error', 'message' => 'Kesalahan cURL: ' . $curlError]);
         } else {
-            // Coba decode JSON, jika gagal, kembalikan sebagai teks biasa
             $decodedResponse = json_decode($response, true);
             if (json_last_error() === JSON_ERROR_NONE) {
-                echo json_encode(['status' => 'success', 'http_code' => $httpCode, 'data' => $decodedResponse, 'is_json' => true]);
+                echo json_encode([
+                    'status' => 'success', 
+                    'http_code' => $httpCode, 
+                    'data' => $decodedResponse, 
+                    'is_json' => true,
+                    'response_size' => strlen($response)
+                ]);
             } else {
-                echo json_encode(['status' => 'success', 'http_code' => $httpCode, 'data' => $response, 'is_json' => false]);
+                echo json_encode([
+                    'status' => 'success', 
+                    'http_code' => $httpCode, 
+                    'data' => $response, 
+                    'is_json' => false,
+                    'response_size' => strlen($response)
+                ]);
             }
         }
         exit;
 
     } elseif ($action === 'save_tool') {
-        global $tool_frontend_template; // Akses variabel template frontend
-        global $tool_backend_api_template; // Akses variabel template backend
-
         $name = trim($_POST['tool_name']);
         $slug_input = trim($_POST['tool_slug']);
         $icon = trim($_POST['tool_icon']);
         $description = trim($_POST['tool_description']);
         $status = $_POST['tool_status'];
         $api_url_for_tool = trim($_POST['api_url_for_tool']);
-        $selected_response_paths = json_decode($_POST['selected_response_paths'] ?? '[]', true); 
         $api_method_for_tool = trim($_POST['api_method_for_tool']);
-        $api_params_for_tool = json_decode($_POST['api_params_for_tool'] ?? '[]', true);
-        $primary_input_param_key = trim($_POST['primary_input_param_key'] ?? '');
-        $generated_output_html = $_POST['generated_output_html'] ?? ''; 
+        $parameters = json_decode($_POST['parameters'] ?? '[]', true);
+        $response_mapping = json_decode($_POST['response_mapping'] ?? '[]', true);
+        $html_template = $_POST['html_template'] ?? '';
+        $headers = json_decode($_POST['headers'] ?? '[]', true);
 
         if (empty($name) || empty($slug_input) || empty($icon) || empty($description) || empty($api_url_for_tool)) {
             $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
@@ -117,7 +647,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $tools = get_all_tools_admin_creator($tools_file); 
+        $tools = get_all_tools_admin_creator($tools_file);
         foreach ($tools as $existing_tool) {
             if ($existing_tool['slug'] === $slug_input) {
                 $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
@@ -136,14 +666,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'api_config' => [
                 'url' => $api_url_for_tool,
                 'method' => $api_method_for_tool,
-                'selected_response_paths' => $selected_response_paths, 
-                'params' => $api_params_for_tool, 
-                'primary_input_key' => $primary_input_param_key,
-                'generated_output_html' => $generated_output_html // Simpan HTML yang sudah diedit
+                'parameters' => $parameters,
+                'response_mapping' => $response_mapping,
+                'html_template' => $html_template,
+                'headers' => $headers,
+                'created_at' => date('Y-m-d H:i:s')
             ]
         ];
+
         $tools[] = $new_tool;
-        $save_result = save_tools_admin_creator($tools, $tools_file); 
+        $save_result = save_tools_admin_creator($tools, $tools_file);
 
         if ($save_result['status'] === 'error') {
             $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&error=' : 'tool_creator.php?error=';
@@ -151,343 +683,412 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Buat folder untuk tool baru
-        $base_tools_dir = realpath(__DIR__ . '/../tools'); 
+        // Create tool directory and files
+        $base_tools_dir = realpath(__DIR__ . '/../tools');
         $tool_dir = $base_tools_dir . DIRECTORY_SEPARATOR . $slug_input;
 
-        $message_appendix = '';
         if (!file_exists($tool_dir)) {
-            if (mkdir($tool_dir, 0755, true)) {
-                // --- PROSES PEMBUATAN FILE index.php (Frontend Tool) ---
-                // JSON-encode string HTML untuk disisipkan ke JS, lalu tambahkan slash untuk string PHP
-                // Menggunakan JSON_UNESCAPED_SLASHES untuk mencegah double backslash di URL
-                $generated_output_html_js_escaped = addslashes(json_encode($generated_output_html, JSON_UNESCAPED_SLASHES));
-
-                $final_frontend_content = $tool_frontend_template;
-                $final_frontend_content = str_replace('{{page_title}}', htmlspecialchars($name), $final_frontend_content);
-                $final_frontend_content = str_replace('{{tool_icon}}', htmlspecialchars($icon), $final_frontend_content);
-                $final_frontend_content = str_replace('{{tool_description}}', htmlspecialchars($description), $final_frontend_content);
-                $final_frontend_content = str_replace('{{primary_input_param_key}}', htmlspecialchars($primary_input_param_key), $final_frontend_content);
-                $final_frontend_content = str_replace('{{generated_output_html_js_escaped}}', $generated_output_html_js_escaped, $final_frontend_content);
-                
-                file_put_contents($tool_dir . "/index.php", $final_frontend_content);
-
-                // --- PROSES PEMBUATAN FILE api.php (Backend Proxy) ---
-                // JSON-encode parameter dan selected paths
-                $api_params_json_encoded = addslashes(json_encode($api_params_for_tool, JSON_UNESCAPED_SLASHES));
-                $selected_response_paths_encoded = addslashes(json_encode($selected_response_paths, JSON_UNESCAPED_SLASHES));
-                // JSON-encode HTML template untuk api.php
-                // Menggunakan JSON_UNESCAPED_SLASHES untuk mencegah double backslash di URL dalam template HTML
-                $api_generated_output_html_encoded = addslashes(json_encode($generated_output_html, JSON_UNESCAPED_SLASHES));
-
-                $final_backend_api_content = $tool_backend_api_template;
-                $final_backend_api_content = str_replace('{{api_url_for_tool}}', htmlspecialchars($api_url_for_tool), $final_backend_api_content);
-                $final_backend_api_content = str_replace('{{api_method_for_tool}}', htmlspecialchars($api_method_for_tool), $final_backend_api_content);
-                $final_backend_api_content = str_replace('{{selected_response_paths_json}}', $selected_response_paths_encoded, $final_backend_api_content);
-                $final_backend_api_content = str_replace('{{api_params_for_tool_json}}', $api_params_json_encoded, $final_backend_api_content);
-                $final_backend_api_content = str_replace('{{primary_input_param_key}}', htmlspecialchars($primary_input_param_key), $final_backend_api_content);
-                $final_backend_api_content = str_replace('{{generated_output_html_escaped}}', $api_generated_output_html_encoded, $final_backend_api_content);
-
-                file_put_contents($tool_dir . "/api.php", $final_backend_api_content);
-
-                $message_appendix = ' dan folder tool dibuat dengan file index.php & api.php.';
-            } else {
-                $message_appendix = ', namun gagal membuat folder tool otomatis. Buat manual: ' . htmlspecialchars($tool_dir);
-            }
-        } else {
-             $message_appendix = '. Folder tool sudah ada. File index.php & api.php diperbarui.';
+            mkdir($tool_dir, 0755, true);
         }
-        
+
+        // Generate form fields HTML
+        $form_fields_html = '';
+        foreach ($parameters as $param) {
+            $required = $param['required'] ? 'required' : '';
+            $placeholder = !empty($param['placeholder']) ? $param['placeholder'] : '';
+            
+            $form_fields_html .= '<div class="parameter-group">';
+            $form_fields_html .= '<div class="parameter-label">' . htmlspecialchars($param['label']) . '</div>';
+            
+            if (!empty($param['description'])) {
+                $form_fields_html .= '<div class="parameter-description">' . htmlspecialchars($param['description']) . '</div>';
+            }
+            
+            if ($param['display_type'] === 'hidden') {
+                $form_fields_html .= '<input type="hidden" name="' . htmlspecialchars($param['key']) . '" value="' . htmlspecialchars($param['default_value'] ?? '') . '">';
+            } elseif ($param['display_type'] === 'select') {
+                $form_fields_html .= '<select class="form-select" name="' . htmlspecialchars($param['key']) . '" ' . $required . '>';
+                if (!$param['required']) {
+                    $form_fields_html .= '<option value="">-- Pilih --</option>';
+                }
+                $options = explode(',', $param['options'] ?? '');
+                foreach ($options as $option) {
+                    $option = trim($option);
+                    $selected = ($option === ($param['default_value'] ?? '')) ? 'selected' : '';
+                    $form_fields_html .= '<option value="' . htmlspecialchars($option) . '" ' . $selected . '>' . htmlspecialchars($option) . '</option>';
+                }
+                $form_fields_html .= '</select>';
+            } elseif ($param['display_type'] === 'textarea') {
+                $form_fields_html .= '<textarea class="form-control" name="' . htmlspecialchars($param['key']) . '" placeholder="' . htmlspecialchars($placeholder) . '" rows="4" ' . $required . '>' . htmlspecialchars($param['default_value'] ?? '') . '</textarea>';
+            } else {
+                $input_type = $param['type'] === 'email' ? 'email' : ($param['type'] === 'url' ? 'url' : 'text');
+                $form_fields_html .= '<input type="' . $input_type . '" class="form-control" name="' . htmlspecialchars($param['key']) . '" placeholder="' . htmlspecialchars($placeholder) . '" value="' . htmlspecialchars($param['default_value'] ?? '') . '" ' . $required . '>';
+            }
+            
+            $form_fields_html .= '</div>';
+        }
+
+        // Create frontend file
+        $frontend_content = $enhanced_frontend_template;
+        $frontend_content = str_replace('{{page_title}}', htmlspecialchars($name), $frontend_content);
+        $frontend_content = str_replace('{{tool_icon}}', htmlspecialchars($icon), $frontend_content);
+        $frontend_content = str_replace('{{tool_description}}', htmlspecialchars($description), $frontend_content);
+        $frontend_content = str_replace('{{form_fields}}', $form_fields_html, $frontend_content);
+
+        file_put_contents($tool_dir . "/index.php", $frontend_content);
+
+        // Create API proxy file
+        $api_content = $enhanced_api_proxy_template;
+        $api_content = str_replace('{{tool_name}}', htmlspecialchars($name), $api_content);
+        $api_content = str_replace('{{api_url}}', htmlspecialchars($api_url_for_tool), $api_content);
+        $api_content = str_replace('{{api_method}}', htmlspecialchars($api_method_for_tool), $api_content);
+        $api_content = str_replace('{{response_mapping}}', addslashes(json_encode($response_mapping)), $api_content);
+        $api_content = str_replace('{{parameter_config}}', addslashes(json_encode($parameters)), $api_content);
+        $api_content = str_replace('{{html_template}}', addslashes($html_template), $api_content);
+
+        file_put_contents($tool_dir . "/api_proxy.php", $api_content);
+
         $redirect_url = $is_dashboard_page ? 'dashboard.php?page=tool_creator&message=' : 'tool_creator.php?message=';
-        header('Location: ' . $redirect_url . urlencode('Tool berhasil ditambahkan' . $message_appendix));
+        header('Location: ' . $redirect_url . urlencode('Tool berhasil dibuat dengan konfigurasi lengkap!'));
         exit;
     }
 }
 ?>
 
 <style>
-    /* Styles for tool_creator.php */
-    .tool-creator-card {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    .enhanced-creator {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    .creator-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .creator-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .creator-section {
+        background: white;
+        border-radius: 1rem;
         padding: 2rem;
-        margin-top: 2rem;
-        margin-bottom: 2rem; /* Added margin-bottom */
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
     }
-    .form-group label {
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f8f9fa;
+    }
+    .section-header h3 {
+        margin: 0;
+        color: #495057;
         font-weight: 600;
-        margin-bottom: 0.5rem;
     }
-    .input-group-param {
-        margin-bottom: 0.5rem;
+    .section-header .badge {
+        margin-left: 1rem;
+        font-size: 0.8rem;
     }
-    .json-display-box {
-        background-color: #212529;
-        color: #f8f9fa;
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    .btn-outline-primary {
+        border-color: #667eea;
+        color: #667eea;
+        border-radius: 8px;
+    }
+    .btn-outline-primary:hover {
+        background: #667eea;
+        border-color: #667eea;
+    }
+    .parameter-item, .mapping-item, .header-item {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
         padding: 1rem;
-        border-radius: 0.5rem;
-        min-height: 100px;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .remove-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    .json-display {
+        background: #2d3748;
+        color: #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
         max-height: 400px;
         overflow-y: auto;
-        font-family: monospace;
-        font-size: 0.85rem;
         white-space: pre-wrap;
         word-break: break-all;
-        position: relative; /* Untuk posisi overlay */
     }
-    .json-display-box pre {
-        margin: 0;
+    .json-key {
+        color: #63b3ed;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transition: background-color 0.2s;
     }
+    .json-key:hover {
+        background-color: rgba(99, 179, 237, 0.2);
+    }
+    .json-key.selected {
+        background-color: rgba(99, 179, 237, 0.4);
+        color: white;
+    }
+    .json-string { color: #68d391; }
+    .json-number { color: #fbb6ce; }
+    .json-boolean { color: #f6ad55; }
+    .json-null { color: #a0aec0; }
     .loading-overlay {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.9);
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
+        border-radius: 1rem;
         z-index: 10;
-        border-radius: 0.75rem;
     }
-    .loading-overlay p {
-        color: #495057;
+    .test-results {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
         margin-top: 1rem;
     }
-    .form-section-hidden {
-        display: none;
-        opacity: 0;
-        height: 0;
-        overflow: hidden;
-        transition: opacity 0.5s ease, height 0.5s ease;
+    .success-indicator {
+        color: #28a745;
+        font-weight: 600;
     }
-    .form-section-visible {
-        display: block;
-        opacity: 1;
-        height: auto;
+    .error-indicator {
+        color: #dc3545;
+        font-weight: 600;
     }
-    .btn-outline-secondary {
-        color: #6c757d;
-        border-color: #6c757d;
+    .response-stats {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
     }
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        color: white;
+    .response-stats .badge {
+        font-size: 0.8rem;
     }
-
-    /* JSON display specific styles for clickability */
-    .json-key, .json-value, .json-array-index {
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        padding: 1px 3px; /* Added padding for better click area */
-        border-radius: 3px;
-        display: inline-block; /* To allow padding/background */
-    }
-    .json-key:hover, .json-value:hover, .json-array-index:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-    .json-key { color: #8be9fd; /* light blue */ }
-    .json-string { color: #f1fa8c; /* yellow */ }
-    .json-number { color: #bd93f9; /* purple */ }
-    .json-boolean { color: #ff79c6; /* pink */ }
-    .json-null { color: #ffb86c; /* orange */ }
-    .json-object, .json-array {
-        margin-left: 20px;
-        border-left: 1px dashed rgba(255,255,255,0.2);
-        padding-left: 10px;
-    }
-    .json-object-bracket, .json-array-bracket {
-        color: #f8f8f2; /* white */
-    }
-    .json-comma {
-        color: #f8f8f2; /* white */
-        margin-right: 5px;
-    }
-    .json-selected-path {
-        background-color: rgba(0, 123, 255, 0.4); /* Highlight blue */
-        border: 1px solid #007bff;
-        color: white;
-    }
-
-    /* Styles for Selected Paths and Generated HTML */
-    #selectedPathsDisplay {
-        background-color: #f8f9fa;
+    .html-preview {
+        background: white;
         border: 1px solid #e9ecef;
-        border-radius: 0.5rem;
+        border-radius: 8px;
         padding: 1rem;
-        min-height: 80px;
-        font-family: monospace;
-        font-size: 0.85rem;
-        word-break: break-all;
         margin-top: 1rem;
-    }
-    #generatedOutputHtml {
-        margin-top: 1rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.5rem;
-        min-height: 150px;
-        padding: 1rem;
-        font-family: monospace;
-        font-size: 0.85rem;
-    }
-    .generate-ai-html-btn {
-        margin-top: 1rem;
-        display: block;
-        width: 100%;
-    }
-    .html-result-preview-box {
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        min-height: 80px;
-        word-break: break-all;
-        margin-top: 1rem;
+        min-height: 100px;
     }
 </style>
 
-<div class="container my-5">
-    <div class="text-center mb-4">
-        <h1 class="display-5 fw-bold"><i class="fas fa-magic me-2"></i><?php echo htmlspecialchars($page_title); ?></h1>
-        <p class="lead text-muted">Uji API dan buat konfigurasi tool baru secara otomatis.</p>
-    </div>
-
-    <?php if (isset($_GET['message'])): ?>
-        <div class="alert alert-success mt-3" role="alert">
-            <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($_GET['message']); ?>
-        </div>
-    <?php endif; ?>
-    <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger mt-3" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($_GET['error']); ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="tool-creator-card position-relative">
-        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p>Memproses permintaan...</p>
-        </div>
-        <div id="aiLoadingOverlay" class="loading-overlay" style="display: none;">
-            <div class="spinner-border text-info" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading AI...</span>
-            </div>
-            <p>Membuat HTML dengan AI...</p>
+<div class="enhanced-creator">
+    <div class="container">
+        <div class="creator-header">
+            <h1><i class="fas fa-magic me-3"></i><?php echo htmlspecialchars($page_title); ?></h1>
+            <p class="lead mb-0">Buat tool canggih dengan konfigurasi API eksternal yang aman dan mudah digunakan</p>
         </div>
 
-
-        <h4><i class="fas fa-vial me-2"></i>Uji API</h4>
-        <p class="text-muted mb-4">Masukkan URL API, metode, dan parameter untuk menguji respons.</p>
-
-        <form id="apiTestForm" class="mb-5">
-            <div class="mb-3">
-                <label for="apiUrl" class="form-label">URL API:</label>
-                <input type="url" class="form-control" id="apiUrl" name="api_url" placeholder="Contoh: https://api.example.com/data" required>
+        <?php if (isset($_GET['message'])): ?>
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($_GET['message']); ?>
             </div>
-            <div class="mb-3">
-                <label class="form-label d-block">Metode HTTP:</label>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="method" id="methodGet" value="GET" checked>
-                    <label class="form-check-label" for="methodGet">GET</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="method" id="methodPost" value="POST">
-                    <label class="form-check-label" for="methodPost">POST</label>
-                </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['error'])): ?>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($_GET['error']); ?>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Parameter (Key-Value Pairs):</label>
-                <div id="paramContainer">
-                    <!-- Dynamic parameter inputs will be added here -->
-                </div>
-                <button type="button" class="btn btn-outline-primary btn-sm" id="addParamBtn">
-                    <i class="fas fa-plus me-2"></i>Tambah Parameter
-                </button>
+        <?php endif; ?>
+
+        <!-- Step 1: API Configuration -->
+        <div class="creator-section" id="apiConfigSection">
+            <div class="section-header">
+                <h3><i class="fas fa-cog me-2"></i>1. Konfigurasi API</h3>
+                <span class="badge bg-primary">Wajib</span>
             </div>
-            <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-play-circle me-2"></i>Uji API
-            </button>
-        </form>
-
-        <h4 class="mt-5"><i class="fas fa-code me-2"></i>Respons API</h4>
-        <p class="text-muted mb-2">Respons mentah dari API akan ditampilkan di sini. **Klik pada nilai untuk memilih jalurnya.**</p>
-        <div class="json-display-box" id="apiResponseDisplay">
-            <!-- API Response (raw clickable JSON) will be displayed here -->
-            <p class="text-muted text-center mb-0">Belum ada respons. Silakan uji API terlebih dahulu.</p>
-        </div>
-        <div id="rawJsonToggle" style="cursor:pointer; color:#007bff; text-align: right; margin-top: 5px;">[Tampilkan Pratinjau HTML]</div>
-
-
-        <div id="toolCreationSection" class="form-section-hidden mt-5">
-            <h4><i class="fas fa-cogs me-2"></i>Konfigurasi Tool Baru</h4>
-            <p class="text-muted mb-4">Lengkapi detail untuk membuat tool berdasarkan respons API ini.</p>
-            <form id="newToolForm" method="POST" action="<?php echo $is_dashboard_page ? 'dashboard.php?page=tool_creator' : 'tool_creator.php'; ?>">
-                <input type="hidden" name="action" value="save_tool">
-                <input type="hidden" name="api_url_for_tool" id="api_url_for_tool">
-                <input type="hidden" name="api_method_for_tool" id="api_method_for_tool">
-                <input type="hidden" name="api_params_for_tool" id="api_params_for_tool"> 
-                <input type="hidden" name="selected_response_paths" id="selected_response_paths_input"> 
-                
-                <div class="mb-3">
-                    <label for="tool_name" class="form-label">Nama Tool:</label>
-                    <input type="text" class="form-control" id="tool_name" name="tool_name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="tool_slug" class="form-label">Slug:</label>
-                    <input type="text" class="form-control" id="tool_slug" name="tool_slug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required>
-                    <small class="text-muted">Akan dibuat otomatis dari nama tool. Gunakan huruf kecil, angka, dan strip.</small>
-                </div>
-                <div class="mb-3">
-                    <label for="tool_icon" class="form-label">Ikon (Font Awesome):</label>
-                    <input type="text" class="form-control" id="tool_icon" name="tool_icon" value="fas fa-tools" placeholder="e.g., fas fa-cog" required>
-                    <small class="text-muted">Contoh: <code>fas fa-star</code>. Akan muncul di daftar tools.</small>
-                </div>
-                <div class="mb-3">
-                    <label for="tool_description" class="form-label">Deskripsi Singkat:</label>
-                    <textarea class="form-control" id="tool_description" name="tool_description" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="tool_status" class="form-label">Status:</label>
-                    <select class="form-select" id="tool_status" name="tool_status" required>
-                        <option value="active">Aktif</option>
-                        <option value="maintenance">Maintenance</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="primary_input_param_key" class="form-label">Kunci Parameter Input Utama (Opsional):</label>
-                    <input type="text" class="form-control" id="primary_input_param_key" name="primary_input_param_key" placeholder="Contoh: link, query, id">
-                    <small class="text-muted">Masukkan kunci parameter yang akan digunakan oleh input utama di halaman tool. Contoh: 'link' untuk video YouTube. Jika ini parameter pertama, akan terisi otomatis.</small>
-                </div>
-                
-                <h5 class="mt-4"><i class="fas fa-bezier-curve me-2"></i>Output Tool Disesuaikan:</h5>
-                <p class="text-muted mb-2">Pilih nilai-nilai dari respons API di atas. Lalu atur tampilan HTML-nya di bawah. Gunakan <code>{{path.to.value}}</code> sebagai placeholder.</p>
-                <div class="mb-3">
-                    <label class="form-label">Jalur Respon JSON yang Dipilih:</label>
-                    <div id="selectedPathsDisplay" class="result-box mb-2">
-                        <!-- Selected paths will be listed here -->
-                        Tidak ada jalur yang dipilih.
+            
+            <form id="apiTestForm">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">URL API Endpoint</label>
+                        <input type="url" class="form-control" id="apiUrl" placeholder="https://api.example.com/endpoint" required>
                     </div>
-                    <button type="button" class="btn btn-outline-danger btn-sm" id="clearSelectedPathsBtn">
-                        <i class="fas fa-trash-alt me-2"></i>Bersihkan Jalur
-                    </button>
+                    <div class="col-md-4">
+                        <label class="form-label">Metode HTTP</label>
+                        <select class="form-select" id="apiMethod">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="generatedOutputHtml" class="form-label">Template Output HTML (Dapat Diedit):</label>
-                    <textarea class="form-control" id="generatedOutputHtml" name="generated_output_html" rows="10" required></textarea>
-                    <small class="text-muted">Desain tampilan hasil tool Anda. Gunakan placeholder seperti <code><h3>Judul: {{title}}</h3><p>Deskripsi: {{description}}</p></code></small>
-                    <button type="button" class="btn btn-info generate-ai-html-btn" id="generateHtmlWithAIBtn">
-                        <i class="fas fa-robot me-2"></i>Buat HTML dengan AI
+
+                <!-- Headers Configuration -->
+                <div class="mt-3">
+                    <label class="form-label">Headers (Opsional)</label>
+                    <div id="headersContainer"></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="addHeaderBtn">
+                        <i class="fas fa-plus me-1"></i>Tambah Header
                     </button>
                 </div>
 
-                <button type="submit" class="btn btn-success w-100">
-                    <i class="fas fa-plus-circle me-2"></i>Buat Tool
-                </button>
+                <!-- Parameters Configuration -->
+                <div class="mt-3">
+                    <label class="form-label">Parameter API</label>
+                    <div id="parametersContainer"></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="addParameterBtn">
+                        <i class="fas fa-plus me-1"></i>Tambah Parameter
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-play me-2"></i>Test API
+                    </button>
+                </div>
+            </form>
+
+            <div id="testResults" class="test-results" style="display: none;">
+                <h5>Hasil Test API</h5>
+                <div id="testResultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Step 2: Response Mapping -->
+        <div class="creator-section" id="responseMappingSection" style="display: none;">
+            <div class="section-header">
+                <h3><i class="fas fa-map me-2"></i>2. Mapping Response</h3>
+                <span class="badge bg-info">Pilih Data</span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Response JSON</h5>
+                    <div id="jsonDisplay" class="json-display">
+                        Belum ada response. Silakan test API terlebih dahulu.
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Mapping yang Dipilih</h5>
+                    <div id="selectedMappings"></div>
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="clearMappingsBtn">
+                        <i class="fas fa-trash me-1"></i>Bersihkan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Tool Configuration -->
+        <div class="creator-section" id="toolConfigSection" style="display: none;">
+            <div class="section-header">
+                <h3><i class="fas fa-tools me-2"></i>3. Konfigurasi Tool</h3>
+                <span class="badge bg-success">Final</span>
+            </div>
+            
+            <form id="toolCreationForm" method="POST" action="<?php echo $is_dashboard_page ? 'dashboard.php?page=tool_creator' : 'tool_creator.php'; ?>">
+                <input type="hidden" name="action" value="save_tool">
+                <input type="hidden" name="api_url_for_tool" id="finalApiUrl">
+                <input type="hidden" name="api_method_for_tool" id="finalApiMethod">
+                <input type="hidden" name="parameters" id="finalParameters">
+                <input type="hidden" name="response_mapping" id="finalResponseMapping">
+                <input type="hidden" name="headers" id="finalHeaders">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nama Tool</label>
+                        <input type="text" class="form-control" name="tool_name" id="toolName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Slug URL</label>
+                        <input type="text" class="form-control" name="tool_slug" id="toolSlug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required>
+                        <small class="text-muted">Otomatis dibuat dari nama tool</small>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Icon (Font Awesome)</label>
+                        <input type="text" class="form-control" name="tool_icon" value="fas fa-tools" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="tool_status">
+                            <option value="active">Aktif</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label">Deskripsi Tool</label>
+                    <textarea class="form-control" name="tool_description" rows="3" required></textarea>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label">Template HTML Output</label>
+                    <textarea class="form-control" name="html_template" id="htmlTemplate" rows="8" placeholder="Gunakan {{key}} untuk placeholder data dari API"></textarea>
+                    <small class="text-muted">Contoh: &lt;h3&gt;Nama: {{name}}&lt;/h3&gt;&lt;p&gt;Email: {{email}}&lt;/p&gt;</small>
+                </div>
+
+                <div class="mt-3">
+                    <h5>Preview HTML</h5>
+                    <div id="htmlPreview" class="html-preview">
+                        Template HTML akan ditampilkan di sini...
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-rocket me-2"></i>Buat Tool
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -495,408 +1096,314 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Global variables
+    let apiResponse = null;
+    let selectedMappings = [];
+    let parameters = [];
+    let headers = [];
+
+    // DOM elements
     const apiTestForm = document.getElementById('apiTestForm');
-    const apiUrlInput = document.getElementById('apiUrl');
-    const methodGet = document.getElementById('methodGet');
-    const methodPost = document.getElementById('methodPost');
-    const paramContainer = document.getElementById('paramContainer');
-    const addParamBtn = document.getElementById('addParamBtn');
-    const apiResponseDisplay = document.getElementById('apiResponseDisplay'); // This will show raw JSON or HTML preview
-    const rawJsonToggle = document.getElementById('rawJsonToggle'); // New toggle button
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const aiLoadingOverlay = document.getElementById('aiLoadingOverlay'); 
+    const parametersContainer = document.getElementById('parametersContainer');
+    const headersContainer = document.getElementById('headersContainer');
+    const addParameterBtn = document.getElementById('addParameterBtn');
+    const addHeaderBtn = document.getElementById('addHeaderBtn');
+    const testResults = document.getElementById('testResults');
+    const testResultsContent = document.getElementById('testResultsContent');
+    const responseMappingSection = document.getElementById('responseMappingSection');
+    const toolConfigSection = document.getElementById('toolConfigSection');
+    const jsonDisplay = document.getElementById('jsonDisplay');
+    const selectedMappings = document.getElementById('selectedMappings');
+    const htmlTemplate = document.getElementById('htmlTemplate');
+    const htmlPreview = document.getElementById('htmlPreview');
+    const toolName = document.getElementById('toolName');
+    const toolSlug = document.getElementById('toolSlug');
 
-    const toolCreationSection = document.getElementById('toolCreationSection');
-    const newToolForm = document.getElementById('newToolForm');
-    const toolNameInput = document.getElementById('tool_name');
-    const toolSlugInput = document.getElementById('tool_slug');
-    const api_url_for_tool = document.getElementById('api_url_for_tool');
-    const api_method_for_tool = document.getElementById('api_method_for_tool');
-    const apiParamsForToolInput = document.getElementById('api_params_for_tool'); 
-    const primaryInputParamKeyInput = document.getElementById('primary_input_param_key'); 
-
-    const selectedResponsePathsInput = document.getElementById('selected_response_paths_input');
-    const selectedPathsDisplay = document.getElementById('selectedPathsDisplay');
-    const clearSelectedPathsBtn = document.getElementById('clearSelectedPathsBtn');
-    const generatedOutputHtmlTextarea = document.getElementById('generatedOutputHtml');
-    const generateHtmlWithAIBtn = document.getElementById('generateHtmlWithAIBtn'); 
-
-    let paramCounter = 0;
-    let selectedJsonPaths = new Set(); 
-    let fullApiResponseData = null; // Stores the raw JSON data from the API test
-    let currentDisplayMode = 'html_preview'; // Default to HTML preview
-
-    // Function to escape HTML special characters
-    function htmlspecialcharsJS(str) {
-        if (typeof str !== 'string') {
-            str = String(str);
-        }
-        const map = {
-            '&': '&',
-            '<': '<',
-            '>': '>',
-            '"': '"',
-            "'": '&#039;'
-        };
-        return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+    // Add parameter row
+    function addParameterRow() {
+        const index = parameters.length;
+        const div = document.createElement('div');
+        div.className = 'parameter-item';
+        div.innerHTML = `
+            <button type="button" class="remove-btn" onclick="removeParameter(${index})">×</button>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Key" data-param-key="${index}">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Label" data-param-label="${index}">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" data-param-type="${index}">
+                        <option value="text">Text</option>
+                        <option value="email">Email</option>
+                        <option value="url">URL</option>
+                        <option value="number">Number</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" data-param-display="${index}">
+                        <option value="input">Input</option>
+                        <option value="textarea">Textarea</option>
+                        <option value="select">Select</option>
+                        <option value="hidden">Hidden</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" data-param-required="${index}">
+                        <label class="form-check-label">Required</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-2 mt-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Default Value" data-param-default="${index}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Placeholder" data-param-placeholder="${index}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="Description" data-param-description="${index}">
+                </div>
+            </div>
+        `;
+        parametersContainer.appendChild(div);
+        parameters.push({});
     }
 
-    // Function to render clickable JSON
-    function renderJsonClickable(data, currentPath = '') {
-        let html = '';
-        if (typeof data === 'object' && data !== null) {
-            if (Array.isArray(data)) {
-                html += '<span class="json-array-bracket">[</span>';
-                if (data.length > 0) {
-                    html += '<div class="json-array">';
-                    data.forEach((item, index) => {
-                        const itemPath = currentPath ? `${currentPath}[${index}]` : `[${index}]`;
-                        html += `<div class="json-item-wrapper"><span class="json-array-index ${selectedJsonPaths.has(itemPath) ? 'json-selected-path' : ''}" data-json-path="${itemPath}"></span> ${renderJsonClickable(item, itemPath)}`;
-                        if (index < data.length - 1) html += '<span class="json-comma">,</span>';
-                        html += '</div>';
-                    });
-                    html += '</div>';
-                }
-                html += '<span class="json-array-bracket">]</span>';
-            } else {
-                html += '<span class="json-object-bracket">{</span>';
-                const keys = Object.keys(data);
-                if (keys.length > 0) {
-                    html += '<div class="json-object">';
-                    keys.forEach((key, index) => {
-                        const newPath = currentPath ? `${currentPath}.${key}` : key;
-                        html += `<div class="json-key-value-pair"><span class="json-key ${selectedJsonPaths.has(newPath) ? 'json-selected-path' : ''}" data-json-path="${newPath}">"${htmlspecialcharsJS(key)}"</span>: ${renderJsonClickable(data[key], newPath)}`;
-                        if (index < keys.length - 1) html += '<span class="json-comma">,</span>';
-                        html += '</div>';
-                    });
-                    html += '</div>';
-                }
-                html += '<span class="json-object-bracket">}</span>';
-            }
-        } else {
-            let displayValue = JSON.stringify(data);
-            let className = '';
-            if (typeof data === 'string') {
-                className = 'json-string';
-            } else if (typeof data === 'number') {
-                className = 'json-number';
-            } else if (typeof data === 'boolean') {
-                className = 'json-boolean';
-            } else if (data === null) {
-                className = 'json-null';
-            }
-            html += `<span class="json-value ${className} ${selectedJsonPaths.has(currentPath) ? 'json-selected-path' : ''}" data-json-path="${currentPath}">${htmlspecialcharsJS(displayValue)}</span>`;
+    // Add header row
+    function addHeaderRow() {
+        const index = headers.length;
+        const div = document.createElement('div');
+        div.className = 'header-item';
+        div.innerHTML = `
+            <button type="button" class="remove-btn" onclick="removeHeader(${index})">×</button>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Header Name" data-header-key="${index}">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Header Value" data-header-value="${index}">
+                </div>
+            </div>
+        `;
+        headersContainer.appendChild(div);
+        headers.push({});
+    }
+
+    // Remove parameter
+    window.removeParameter = function(index) {
+        const items = parametersContainer.querySelectorAll('.parameter-item');
+        if (items[index]) {
+            items[index].remove();
+            parameters.splice(index, 1);
         }
+    };
+
+    // Remove header
+    window.removeHeader = function(index) {
+        const items = headersContainer.querySelectorAll('.header-item');
+        if (items[index]) {
+            items[index].remove();
+            headers.splice(index, 1);
+        }
+    };
+
+    // Collect parameters data
+    function collectParameters() {
+        const paramData = [];
+        parametersContainer.querySelectorAll('.parameter-item').forEach((item, index) => {
+            const key = item.querySelector(`[data-param-key="${index}"]`).value;
+            const label = item.querySelector(`[data-param-label="${index}"]`).value;
+            const type = item.querySelector(`[data-param-type="${index}"]`).value;
+            const display_type = item.querySelector(`[data-param-display="${index}"]`).value;
+            const required = item.querySelector(`[data-param-required="${index}"]`).checked;
+            const default_value = item.querySelector(`[data-param-default="${index}"]`).value;
+            const placeholder = item.querySelector(`[data-param-placeholder="${index}"]`).value;
+            const description = item.querySelector(`[data-param-description="${index}"]`).value;
+
+            if (key && label) {
+                paramData.push({
+                    key, label, type, display_type, required,
+                    default_value, placeholder, description
+                });
+            }
+        });
+        return paramData;
+    }
+
+    // Collect headers data
+    function collectHeaders() {
+        const headerData = [];
+        headersContainer.querySelectorAll('.header-item').forEach((item, index) => {
+            const key = item.querySelector(`[data-header-key="${index}"]`).value;
+            const value = item.querySelector(`[data-header-value="${index}"]`).value;
+            if (key && value) {
+                headerData.push({ key, value });
+            }
+        });
+        return headerData;
+    }
+
+    // Render JSON with clickable keys
+    function renderJsonClickable(obj, path = '') {
+        if (typeof obj !== 'object' || obj === null) {
+            let className = 'json-string';
+            if (typeof obj === 'number') className = 'json-number';
+            else if (typeof obj === 'boolean') className = 'json-boolean';
+            else if (obj === null) className = 'json-null';
+            
+            return `<span class="${className}">${JSON.stringify(obj)}</span>`;
+        }
+
+        if (Array.isArray(obj)) {
+            let html = '[\n';
+            obj.forEach((item, index) => {
+                const itemPath = path ? `${path}[${index}]` : `[${index}]`;
+                html += `  ${renderJsonClickable(item, itemPath)}`;
+                if (index < obj.length - 1) html += ',';
+                html += '\n';
+            });
+            html += ']';
+            return html;
+        }
+
+        let html = '{\n';
+        const keys = Object.keys(obj);
+        keys.forEach((key, index) => {
+            const keyPath = path ? `${path}.${key}` : key;
+            const isSelected = selectedMappings.some(m => m.path === keyPath);
+            const selectedClass = isSelected ? 'selected' : '';
+            
+            html += `  <span class="json-key ${selectedClass}" data-path="${keyPath}" onclick="toggleMapping('${keyPath}', '${key}')">"${key}"</span>: `;
+            html += renderJsonClickable(obj[key], keyPath);
+            if (index < keys.length - 1) html += ',';
+            html += '\n';
+        });
+        html += '}';
         return html;
     }
 
-    // Function to handle click on JSON elements for multi-selection
-    function handleJsonClick(event) {
-        let target = event.target;
-        let path = null;
-
-        while (target && !target.dataset.jsonPath && target !== apiResponseDisplay) {
-            target = target.parentElement;
-        }
-
-        if (target && target.dataset.jsonPath) {
-            path = target.dataset.jsonPath;
-            
-            if (selectedJsonPaths.has(path)) {
-                selectedJsonPaths.delete(path);
-                target.classList.remove('json-selected-path');
-            } else {
-                selectedJsonPaths.add(path);
-                target.classList.add('json-selected-path');
-            }
-            updateSelectedPathsDisplay();
-            generateOutputHtmlPreview(); // Update HTML preview in textarea
-            // No need to call updateTestResultHtmlDisplay here directly
-            // The display mode will handle the rendering based on currentDisplayMode
-        }
-    }
-
-    // Function to update the display of selected paths
-    function updateSelectedPathsDisplay() {
-        const pathsArray = Array.from(selectedJsonPaths);
-        if (pathsArray.length > 0) {
-            selectedPathsDisplay.innerHTML = pathsArray.map(p => `<code>${htmlspecialcharsJS(p)}</code>`).join('<br>');
-            selectedResponsePathsInput.value = JSON.stringify(pathsArray);
-            clearSelectedPathsBtn.style.display = 'block';
+    // Toggle mapping selection
+    window.toggleMapping = function(path, key) {
+        const existingIndex = selectedMappings.findIndex(m => m.path === path);
+        
+        if (existingIndex >= 0) {
+            selectedMappings.splice(existingIndex, 1);
         } else {
-            selectedPathsDisplay.textContent = 'Tidak ada jalur yang dipilih.';
-            selectedResponsePathsInput.value = '[]';
-            clearSelectedPathsBtn.style.display = 'none';
-        }
-    }
-
-    // Function to clear all selected paths
-    clearSelectedPathsBtn.addEventListener('click', function() {
-        selectedJsonPaths.clear();
-        // Re-render raw JSON to remove highlights
-        if (fullApiResponseData) {
-            apiResponseDisplay.innerHTML = renderJsonClickable(fullApiResponseData);
-            apiResponseDisplay.addEventListener('click', handleJsonClick); // Add click listener back
-        }
-        updateSelectedPathsDisplay();
-        generateOutputHtmlPreview(); // Update HTML preview
-        updateTestResultHtmlDisplay(); // Update the main display
-    });
-
-    // Function to extract value from JSON data based on path
-    function extractValueFromPath(data, path) {
-        if (!path || !data) return 'N/A';
-        let pathParts = path.split('.');
-        let current = data;
-        let found = true;
-
-        for (const part of pathParts) {
-            const arrayMatch = part.match(/(\w+)\[(\d+)\]/);
-            if (arrayMatch) {
-                const arrayKey = arrayMatch[1];
-                const arrayIndex = parseInt(arrayMatch[2]);
-                if (current && typeof current === 'object' && current[arrayKey] && Array.isArray(current[arrayKey]) && current[arrayKey].length > arrayIndex) {
-                    current = current[arrayKey][arrayIndex];
-                } else {
-                    found = false;
-                    break;
-                }
-            } else if (current && typeof current === 'object' && current.hasOwnProperty(part)) {
-                current = current[part];
-            } else {
-                found = false;
-                break;
-            }
-        }
-        return found ? (typeof current === 'object' ? JSON.stringify(current) : current) : 'N/A';
-    }
-
-    // Function to generate and update the editable HTML output preview (for textarea)
-    function generateOutputHtmlPreview() {
-        let htmlContent = '';
-        if (selectedJsonPaths.size > 0 && fullApiResponseData) {
-            Array.from(selectedJsonPaths).forEach(path => {
-                const value = extractValueFromPath(fullApiResponseData, path);
-                htmlContent += `<div><strong>${htmlspecialcharsJS(path)}:</strong> {{${htmlspecialcharsJS(path)}}}</div>\n`; // Use placeholder
-            });
-        } else if (fullApiResponseData) {
-            htmlContent = `<p>Output HTML Anda akan tampil di sini. Anda bisa menggunakan <code>{{path.ke.nilai}}</code> sebagai placeholder dari data JSON yang Anda pilih.</p>\n<p>Contoh: <code><h1>Judul: {{title}}</h1></code></p>`;
-        } else {
-            htmlContent = '<!-- Output HTML akan digenerate di sini -->';
-        }
-        generatedOutputHtmlTextarea.value = htmlContent;
-    }
-
-    // NEW FUNCTION: Updates the main apiResponseDisplay with rendered HTML or raw JSON
-    function updateTestResultHtmlDisplay() {
-        if (!fullApiResponseData) {
-            apiResponseDisplay.innerHTML = '<p class="text-muted text-center mb-0">Belum ada respons. Silakan uji API terlebih dahulu.</p>';
-            rawJsonToggle.style.display = 'none'; // Hide toggle if no data
-            return;
+            selectedMappings.push({ path, key });
         }
         
-        if (currentDisplayMode === 'html_preview') {
-            let renderedHtml = generatedOutputHtmlTextarea.value;
-            // Replace placeholders with actual values for live preview
-            Array.from(selectedJsonPaths).forEach(path => {
-                const value = extractValueFromPath(fullApiResponseData, path);
-                const placeholder = new RegExp(`\{\{${escapeRegExp(path)}\}\}`, 'g');
-                renderedHtml = renderedHtml.replace(placeholder, htmlspecialcharsJS(value));
-            });
-            apiResponseDisplay.innerHTML = `<div class="html-result-preview-box">${renderedHtml}</div>`;
-            apiResponseDisplay.removeEventListener('click', handleJsonClick); // Remove click listener when showing HTML preview
-            rawJsonToggle.textContent = '[Tampilkan JSON Mentah]';
-        } else if (currentDisplayMode === 'json') {
-            apiResponseDisplay.innerHTML = renderJsonClickable(fullApiResponseData);
-            apiResponseDisplay.addEventListener('click', handleJsonClick); // Add click listener back
-            rawJsonToggle.textContent = '[Tampilkan Pratinjau HTML]';
-        }
-        rawJsonToggle.style.display = 'block'; // Ensure toggle is visible if data exists
-    }
+        updateMappingsDisplay();
+        updateJsonDisplay();
+        updateHtmlPreview();
+    };
 
-    // Toggle between raw JSON and HTML preview
-    rawJsonToggle.addEventListener('click', function() {
-        if (fullApiResponseData) { // Only toggle if there's data to display
-            currentDisplayMode = (currentDisplayMode === 'json') ? 'html_preview' : 'json';
-            updateTestResultHtmlDisplay();
-        }
-    });
-
-    // Utility function for escaping regex characters in path
-    function escapeRegExp(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the matched substring
-    }
-
-
-    // Function to generate HTML using Gemini AI
-    generateHtmlWithAIBtn.addEventListener('click', async function() {
-        if (!fullApiResponseData) {
-            alert('Harap uji API dan dapatkan respons terlebih dahulu.');
-            return;
-        }
-        if (selectedJsonPaths.size === 0) {
-            alert('Harap pilih setidaknya satu jalur JSON dari respons API.');
+    // Update mappings display
+    function updateMappingsDisplay() {
+        if (selectedMappings.length === 0) {
+            selectedMappings.innerHTML = '<p class="text-muted">Belum ada mapping yang dipilih. Klik pada key di JSON response.</p>';
             return;
         }
 
-        aiLoadingOverlay.style.display = 'flex'; // Show AI loading indicator
+        let html = '';
+        selectedMappings.forEach((mapping, index) => {
+            html += `
+                <div class="mapping-item">
+                    <button type="button" class="remove-btn" onclick="removeMapping(${index})">×</button>
+                    <strong>Key:</strong> ${mapping.key}<br>
+                    <strong>Path:</strong> ${mapping.path}<br>
+                    <strong>Placeholder:</strong> {{${mapping.key}}}
+                </div>
+            `;
+        });
+        selectedMappings.innerHTML = html;
+    }
 
-        const pathsForAI = Array.from(selectedJsonPaths);
-        const sampleDataForAI = {};
-        pathsForAI.forEach(path => {
-            sampleDataForAI[path] = extractValueFromPath(fullApiResponseData, path);
+    // Remove mapping
+    window.removeMapping = function(index) {
+        selectedMappings.splice(index, 1);
+        updateMappingsDisplay();
+        updateJsonDisplay();
+        updateHtmlPreview();
+    };
+
+    // Update JSON display
+    function updateJsonDisplay() {
+        if (apiResponse) {
+            jsonDisplay.innerHTML = renderJsonClickable(apiResponse);
+        }
+    }
+
+    // Update HTML preview
+    function updateHtmlPreview() {
+        let template = htmlTemplate.value;
+        if (!template) {
+            htmlPreview.innerHTML = 'Template HTML akan ditampilkan di sini...';
+            return;
+        }
+
+        // Replace placeholders with sample data
+        selectedMappings.forEach(mapping => {
+            const placeholder = `{{${mapping.key}}}`;
+            const sampleValue = `[Sample ${mapping.key}]`;
+            template = template.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), sampleValue);
         });
 
-        const prompt = `
-            Anda adalah seorang asisten yang ahli dalam membuat struktur HTML yang rapi dan estetik untuk menampilkan data.
-            Buatlah struktur HTML minimalis namun menarik untuk menampilkan data dari respons API berikut.
-            Gunakan placeholder dalam format {{path.ke.nilai}} untuk setiap data yang ingin ditampilkan.
-            Contoh: <p>Nama: {{user.name}}</p>
-            Pastikan HTML yang dihasilkan bersih, estetik, dan mudah diedit oleh admin.
-            Data yang tersedia dan path yang dipilih:
-            ${JSON.stringify(sampleDataForAI, null, 2)}
+        htmlPreview.innerHTML = template;
+    }
 
-            Sertakan juga CSS inline minimal jika perlu untuk kerapian (misal: margin, padding, font-size).
-            Desain harus selaras dengan tampilan header/footer yang umumnya menggunakan Bootstrap 5 dan Font Awesome.
-            Fokus pada readability dan UX.
-            Berikan hanya kode HTML, tanpa penjelasan.
-        `;
-
-        let chatHistory = [];
-        chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-        const payload = {
-            contents: chatHistory,
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.95,
-                topK: 40,
-            }
-        };
-
-        const apiKey = "AIzaSyC6KEcR5VD3Xe4az2Gt8lmvHbmExhpMRcI"; // Your provided API Key
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-
-            if (result.candidates && result.candidates.length > 0 &&
-                result.candidates[0].content && result.candidates[0].content.parts &&
-                result.candidates[0].content.parts.length > 0) {
-                const aiGeneratedHtml = result.candidates[0].content.parts[0].text;
-                // Clean up markdown code block if present
-                const cleanedHtml = aiGeneratedHtml.replace(/```html\n?|```/g, '').trim();
-                generatedOutputHtmlTextarea.value = cleanedHtml;
-                updateTestResultHtmlDisplay(); // Update the main display after AI generation
-            } else {
-                alert("Gagal menghasilkan HTML dari AI. Respons tidak valid.");
-            }
-        } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            alert('Terjadi kesalahan saat memanggil Gemini AI: ' + error.message);
-        } finally {
-            aiLoadingOverlay.style.display = 'none'; // Hide AI loading indicator
-        }
+    // Auto-generate slug from tool name
+    toolName.addEventListener('input', function() {
+        const slug = this.value
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/[\s-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        toolSlug.value = slug;
     });
 
+    // HTML template change handler
+    htmlTemplate.addEventListener('input', updateHtmlPreview);
 
-    // Function to add a new parameter input row
-    function addParameterRow(key = '', value = '') {
-        const row = document.createElement('div');
-        row.className = 'input-group input-group-param';
-        const keyInput = document.createElement('input');
-        keyInput.type = 'text';
-        keyInput.className = 'form-control';
-        keyInput.name = `params[${paramCounter}][key]`;
-        keyInput.placeholder = 'Parameter Key';
-        keyInput.value = htmlspecialcharsJS(key);
+    // Event listeners
+    addParameterBtn.addEventListener('click', addParameterRow);
+    addHeaderBtn.addEventListener('click', addHeaderRow);
 
-        const valueInput = document.createElement('input');
-        valueInput.type = 'text';
-        valueInput.className = 'form-control';
-        valueInput.name = `params[${paramCounter}][value]`;
-        valueInput.placeholder = 'Parameter Value';
-        valueInput.value = htmlspecialcharsJS(value);
+    // Clear mappings
+    document.getElementById('clearMappingsBtn').addEventListener('click', function() {
+        selectedMappings = [];
+        updateMappingsDisplay();
+        updateJsonDisplay();
+        updateHtmlPreview();
+    });
 
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn btn-outline-danger remove-param-btn';
-        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        removeBtn.addEventListener('click', function() {
-            row.remove();
-            // Update primary input key if the removed one was the first or the currently active
-            if (paramContainer.children.length > 0) {
-                const firstExistingKeyInput = paramContainer.children[0].querySelector('input[name$="[key]"]');
-                primaryInputParamKeyInput.value = firstExistingKeyInput ? firstExistingKeyInput.value : '';
-            } else {
-                primaryInputParamKeyInput.value = '';
-            }
-        });
-
-        row.appendChild(keyInput);
-        row.appendChild(valueInput);
-        row.appendChild(removeBtn);
-        paramContainer.appendChild(row);
-
-        // Auto-fill primary_input_param_key if this is the first parameter
-        if (paramContainer.children.length === 1) {
-            primaryInputParamKeyInput.value = keyInput.value;
-        }
-        
-        // Update primary_input_param_key when the key input changes, only if it's the first one
-        keyInput.addEventListener('input', function() {
-            if (paramContainer.children[0] === row) { // Check if this is still the first row
-                primaryInputParamKeyInput.value = this.value;
-            }
-        });
-
-        paramCounter++;
-    }
-
-    addParamBtn.addEventListener('click', () => addParameterRow());
-
-    // Initial parameter row only if none exist (e.g., on first load)
-    if (paramContainer.children.length === 0) {
-        addParameterRow();
-    }
-
-    // Handle API Test Form Submission
+    // API Test Form
     apiTestForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        loadingOverlay.style.display = 'flex'; // Show loading overlay
-        apiResponseDisplay.innerHTML = '<p class="text-muted text-center mb-0">Memuat respons API...</p>'; // Clear previous response
-        selectedJsonPaths.clear(); // Clear previous selections
-        updateSelectedPathsDisplay(); // Update display
-        generatedOutputHtmlTextarea.value = ''; // Clear generated HTML
+        const apiUrl = document.getElementById('apiUrl').value;
+        const apiMethod = document.getElementById('apiMethod').value;
+        const paramData = collectParameters();
+        const headerData = collectHeaders();
 
-        fullApiResponseData = null; // Clear stored API data
-        currentDisplayMode = 'html_preview'; // Reset display mode to HTML preview initially
-
-        const apiUrl = apiUrlInput.value;
-        const method = document.querySelector('input[name="method"]:checked').value;
-        const paramInputs = paramContainer.querySelectorAll('.input-group-param');
-        const params = [];
-        paramInputs.forEach(row => {
-            const key = row.querySelector('input[name$="[key]"]').value;
-            const value = row.querySelector('input[name$="[value]"]').value;
-            if (key) { // Only add if key is not empty
-                params.push({ key, value });
-            }
-        });
+        testResults.style.display = 'block';
+        testResultsContent.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Testing API...';
 
         const formData = new FormData();
         formData.append('action', 'test_api');
         formData.append('api_url', apiUrl);
-        formData.append('method', method);
-        params.forEach((param, index) => {
+        formData.append('method', apiMethod);
+        
+        paramData.forEach((param, index) => {
             formData.append(`params[${index}][key]`, param.key);
-            formData.append(`params[${index}][value]`, param.value);
+            formData.append(`params[${index}][value]`, param.default_value || 'test');
+        });
+
+        headerData.forEach((header, index) => {
+            formData.append(`headers[${index}][key]`, header.key);
+            formData.append(`headers[${index}][value]`, header.value);
         });
 
         try {
@@ -904,68 +1411,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             });
+
             const result = await response.json();
 
-            loadingOverlay.style.display = 'none'; // Hide loading overlay
-
             if (result.status === 'success') {
-                if (result.is_json === false) {
-                     apiResponseDisplay.innerHTML = `
-                        <p class="text-warning"><strong>Respons bukan JSON:</strong></p>
-                        <pre>${htmlspecialcharsJS(result.data)}</pre>
-                     `;
-                     rawJsonToggle.style.display = 'none'; // Hide toggle if not JSON
-                } else {
-                    fullApiResponseData = result.data; // Store full response
-                    // Render HTML preview initially
-                    updateTestResultHtmlDisplay(); // This will display HTML preview by default
-                    // But also add the click listener for JSON (it will be active when toggled)
-                    apiResponseDisplay.addEventListener('click', handleJsonClick); 
-                    rawJsonToggle.style.display = 'block'; // Show toggle for JSON
-                }
+                apiResponse = result.data;
                 
-                // Show tool creation section and pre-fill fields
-                toolCreationSection.classList.remove('form-section-hidden');
-                toolCreationSection.classList.add('form-section-visible');
-                api_url_for_tool.value = apiUrl;
-                api_method_for_tool.value = method;
-                apiParamsForToolInput.value = JSON.stringify(params); // Simpan parameter yang diuji
-                
-                generateOutputHtmlPreview(); // Generate initial HTML preview
+                testResultsContent.innerHTML = `
+                    <div class="success-indicator">✓ API Test Berhasil</div>
+                    <div class="response-stats">
+                        <span class="badge bg-success">HTTP ${result.http_code}</span>
+                        <span class="badge bg-info">${result.response_size} bytes</span>
+                        <span class="badge bg-primary">${result.is_json ? 'JSON' : 'Text'}</span>
+                    </div>
+                `;
 
+                if (result.is_json) {
+                    responseMappingSection.style.display = 'block';
+                    toolConfigSection.style.display = 'block';
+                    updateJsonDisplay();
+                    
+                    // Set final form values
+                    document.getElementById('finalApiUrl').value = apiUrl;
+                    document.getElementById('finalApiMethod').value = apiMethod;
+                    document.getElementById('finalParameters').value = JSON.stringify(paramData);
+                    document.getElementById('finalHeaders').value = JSON.stringify(headerData);
+                }
             } else {
-                apiResponseDisplay.innerHTML = `<div class="alert alert-danger mb-0">${htmlspecialcharsJS(result.message)}</div>`;
-                toolCreationSection.classList.remove('form-section-visible');
-                toolCreationSection.classList.add('form-section-hidden');
-                rawJsonToggle.style.display = 'none'; // Hide toggle on error
+                testResultsContent.innerHTML = `
+                    <div class="error-indicator">✗ API Test Gagal</div>
+                    <div class="alert alert-danger mt-2">${result.message}</div>
+                `;
             }
         } catch (error) {
-            console.error('Error:', error);
-            loadingOverlay.style.display = 'none';
-            apiResponseDisplay.innerHTML = `<div class="alert alert-danger mb-0">Terjadi kesalahan jaringan: ${htmlspecialcharsJS(error.message)}</div>`;
-            toolCreationSection.classList.remove('form-section-visible');
-            toolCreationSection.classList.add('form-section-hidden');
-            rawJsonToggle.style.display = 'none'; // Hide toggle on error
+            testResultsContent.innerHTML = `
+                <div class="error-indicator">✗ Error</div>
+                <div class="alert alert-danger mt-2">${error.message}</div>
+            `;
         }
     });
 
-    // Auto-generate slug from tool name
-    toolNameInput.addEventListener('keyup', function() {
-        toolSlugInput.value = createSlug(this.value);
+    // Tool Creation Form
+    document.getElementById('toolCreationForm').addEventListener('submit', function(e) {
+        document.getElementById('finalResponseMapping').value = JSON.stringify(selectedMappings);
     });
 
-    function createSlug(str) {
-        if (!str) return '';
-        str = str.replace(/^\s+|\s+$/g, ''); 
-        str = str.toLowerCase();
-        var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
-        var to   = "aaaaeeeeiiiioooouuuunc------";
-        for (var i=0, l=from.length ; i<l ; i++) {
-            str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-        }
-        str = str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
-        return str;
-    }
+    // Initialize with one parameter row
+    addParameterRow();
 });
 </script>
 
