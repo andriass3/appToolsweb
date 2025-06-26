@@ -1,0 +1,138 @@
+[
+    {
+        "id": "unique_id_1",
+        "name": "Password Generator",
+        "slug": "password-generator",
+        "icon": "fas fa-key",
+        "status": "active",
+        "description": "Buat password yang kuat dan aman."
+    },
+    {
+        "id": "unique_id_3",
+        "name": "Text Analyzer",
+        "slug": "text-analyzer",
+        "icon": "fas fa-spell-check",
+        "status": "active",
+        "description": "Analisis teks Anda untuk jumlah kata, karakter, dll."
+    },
+    {
+        "id": "tool_683c1616b9c9c",
+        "name": "Prompt Generator",
+        "slug": "ai-prompt-generator",
+        "icon": "fa-solid fa-robot",
+        "description": "Auto Generate Prompt",
+        "status": "active"
+    },
+    {
+        "id": "tool_683c18e5603fa",
+        "name": "Image Optimizer",
+        "slug": "image-optimizer",
+        "icon": "fas fa-compress-arrows-alt",
+        "description": "Mengurangi ukuran file gambar (JPG, PNG) tanpa banyak mengurangi kualitas visual.",
+        "status": "active"
+    },
+    {
+        "id": "tool_683c66d62c81c",
+        "name": "Kartu Undian Generator",
+        "slug": "kartu-undian-generator",
+        "icon": "fas fa-tools",
+        "description": "Kartu Undian Generator Automatis",
+        "status": "active"
+    },
+    {
+        "id": "tool_683c74b22a342",
+        "name": "Ai Image Generator",
+        "slug": "ai-image-generator",
+        "icon": "fa-regular fa-file-image",
+        "description": "Generate Teks Ke Image dengan bantua AI",
+        "status": "active"
+    },
+    {
+        "id": "tool_683d149683e7a",
+        "name": "Kamus KBBI",
+        "slug": "kamus-kbbi",
+        "icon": "fas fa-book",
+        "description": "Cari makna kata dalam Kamus Besar Bahasa Indonesia",
+        "status": "active"
+    },
+    {
+        "id": "tool_6843d5c614b9b",
+        "name": "Ai Detection",
+        "slug": "ai-detection",
+        "icon": "fas fa-shield-alt",
+        "description": "Analisis gambar dan teks secara otomatis untuk moderasi konten seperti NSFW, kekerasan, dan gambar buatan AI.",
+        "status": "active"
+    },
+    {
+        "id": "tool_68499269631cb",
+        "name": "Generate Nama Bayi",
+        "slug": "generate-nama-bayi",
+        "icon": "fas fa-baby-carriage",
+        "description": "Hasilkan rekomendasi nama bayi yang unik dan bermakna menggunakan kami.",
+        "status": "active"
+    },
+    {
+        "id": "tool_6852e2b6d6640",
+        "name": "Cek Validasi Rekening",
+        "slug": "cek-validasi-rekening",
+        "icon": "fas fa-university me-2",
+        "description": "Validasi cepat status dan nama pemilik rekening bank atau e-wallet Anda.",
+        "status": "maintenance"
+    },
+    {
+        "id": "tool_685972e2d5f36",
+        "name": "Youtube Transcript Generator",
+        "slug": "youtube-transcript-generator",
+        "icon": "fab fa-youtube",
+        "description": "Youtube Transcript Generator Automatis",
+        "status": "active"
+    },
+    {
+        "id": "tool_685a2ffee8d32",
+        "name": "AIO (All-in-One) Downloader",
+        "slug": "aio-all-in-one-downloader",
+        "icon": "fas fa-download",
+        "description": "AIO (All-in-One) Downloader",
+        "status": "active"
+    },
+    {
+        "id": "tool_685aa0674ced6",
+        "name": "Face Swap",
+        "slug": "face-swap",
+        "icon": "fas fa-tools",
+        "description": "Face Swap",
+        "status": "active"
+    },
+    {
+        "id": "tool_685abc9ce30db",
+        "name": "SunoAI Generate Music",
+        "slug": "sunoai-generate-music",
+        "icon": "fas fa-music",
+        "description": "SunoAI Generate Music",
+        "status": "active"
+    },
+    {
+        "id": "tool_685ac51630db0",
+        "name": "Editor Image With AI",
+        "slug": "editor-image-with-ai",
+        "icon": "fas fa-tools",
+        "description": "Editor Image With AI Gemini",
+        "status": "active"
+    },
+    {
+        "id": "tool_685acbd16b3e5",
+        "name": "Image to Anime",
+        "slug": "image-to-anime",
+        "icon": "fa-brands fa-unity",
+        "description": "Buat Fotomu menjadi Anime",
+        "status": "active"
+    },
+    {
+        "id": "tool_685ad212a48ef",
+        "name": "Po*nhub Downloader",
+        "slug": "ponhub-downloader",
+        "icon": "fas fa-video",
+        "description": "Cari dan download",
+        "status": "active"
+    }
+]

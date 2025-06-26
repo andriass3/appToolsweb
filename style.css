@@ -1,0 +1,591 @@
+/* Styling dasar dari style.css sebelumnya (jika ada dan relevan) */
+body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Styling .tool-card jika masih digunakan di halaman lain */
+.tool-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+}
+
+.tool-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tool-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.tool-card .card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    flex-grow: 1;
+}
+
+.tool-card .card-link {
+    text-decoration: none;
+}
+
+.tool-card .card-link .btn {
+    width: 100%;
+    font-weight: 500;
+}
+
+.tool-card .icon-container {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #0d6efd;
+}
+
+.badge.bg-warning.maintenance-badge { /* Untuk .tool-card */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.75rem;
+}
+
+
+.footer {
+    background-color: #e9ecef !important;
+}
+
+.tool-page-container {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.tool-page-container h1 {
+    color: #343a40;
+    margin-bottom: 1.5rem;
+}
+
+/* Admin Login Form (jika masih relevan) */
+.admin-login-form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+
+/* Admin Dashboard Enhanced Styles */
+body.admin-page {
+    background-color: #f4f7f6;
+}
+
+.admin-dashboard-enhanced {
+    padding-top: 1.5rem;
+}
+
+.admin-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.admin-header h1 {
+    font-weight: 600;
+}
+
+.custom-alert { /* Untuk alert di admin dashboard */
+    border-left-width: 5px;
+    border-radius: 0.375rem;
+}
+
+.stat-card {
+    border-radius: 0.75rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.stat-card .card-title {
+    font-size: 0.95rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.stat-card .card-text {
+    color: #343a40;
+}
+
+#manageToolFormSection {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out;
+}
+
+#manageToolFormSection.form-visible {
+    max-height: 1000px; 
+    overflow: visible;
+}
+
+
+.form-manage-tool .card-header,
+.list-tools-card .card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #eff2f5;
+}
+
+.form-manage-tool .card-header h5,
+.list-tools-card .card-header h5 {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.form-manage-tool .form-control-lg,
+.form-manage-tool .form-select-lg {
+    font-size: 1rem;
+    padding: 0.65rem 1rem;
+}
+
+.form-manage-tool .input-group-text {
+    font-size: 1rem;
+}
+
+.admin-tools-table th {
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa !important;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.admin-tools-table td {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+.admin-tools-table .badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.admin-tools-table .action-buttons .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.admin-tools-table .action-buttons .btn i {
+    font-size: 0.9em;
+}
+
+.admin-tools-table tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.tooltip-inner {
+  background-color: #343a40;
+  color: #fff;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+}
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: #343a40;
+}
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+  border-bottom-color: #343a40;
+}
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+  border-left-color: #343a40;
+}
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: #343a40;
+}
+
+/* Homepage List View Styles */
+.main-title {
+    color: #343a40;
+}
+
+.custom-alert-main {
+    border-left: 4px solid #0dcaf0;
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+.tool-list-container {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+}
+
+.tool-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 1.75rem;
+    text-decoration: none;
+    color: #212529;
+    border-bottom: 1px solid #eef2f7;
+    transition: background-color 0.3s ease, transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    position: relative;
+}
+
+.tool-list-item:last-child {
+    border-bottom: none;
+}
+
+.tool-list-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.tool-icon-wrapper {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    color: #0d6efd;
+    border-radius: 0.5rem;
+    margin-right: 1.25rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tool-list-item:hover .tool-icon-wrapper {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+
+.tool-details {
+    flex-grow: 1;
+}
+
+.tool-name {
+    font-weight: 600;
+    font-size: 1.15rem;
+    color: #343a40;
+    margin-bottom: 0.2rem !important;
+}
+
+.tool-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.tool-action-indicator {
+    margin-left: 1rem;
+    color: #adb5bd;
+    font-size: 1.2rem;
+    transition: transform 0.2s ease-out, color 0.3s ease;
+}
+
+.tool-list-item:hover .tool-action-indicator {
+    transform: translateX(3px);
+    color: #0d6efd;
+}
+
+.tool-list-item.maintenance {
+    background-color: #fff3cd;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.tool-list-item.maintenance:hover {
+    background-color: #ffeeba;
+    transform: none;
+}
+
+.tool-list-item.maintenance .tool-icon-wrapper {
+    background-color: #ffc107;
+    color: #343a40;
+}
+
+.tool-list-item.maintenance .tool-action-indicator {
+    display: none;
+}
+
+.maintenance-badge-list { /* Untuk .tool-list-item */
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 0.75rem;
+    padding: 0.3em 0.6em;
+    background-color: #ffc107;
+    color: #343a40;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* Admin Dashboard */
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    .admin-header h1 {
+        margin-bottom: 0.5rem !important;
+    }
+    .stat-card .card-body { /* Admin */
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    .stat-icon { /* Admin */
+        margin-bottom: 0.75rem;
+    }
+
+    /* Homepage Tool Card (jika masih ada) & Tool List */
+    .tool-card .icon-container {
+        font-size: 2rem;
+    }
+    .tool-card .card-title {
+        font-size: 1.1rem;
+    }
+    .tool-list-item {
+        padding: 1rem 1.25rem;
+    }
+    .tool-icon-wrapper {
+        width: 50px;
+        height: 50px;
+        margin-right: 1rem;
+    }
+    .tool-icon-wrapper i {
+        font-size: 1.5rem;
+    }
+    .tool-name {
+        font-size: 1.05rem;
+    }
+    .tool-description {
+        font-size: 0.85rem;
+    }
+    .maintenance-badge-list {
+        top: 8px;
+        right: 10px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .tool-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .tool-icon-wrapper {
+        margin-bottom: 0.75rem;
+    }
+    .tool-action-indicator {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+    }
+     .tool-list-item.maintenance .tool-action-indicator {
+        display: none;
+    }
+    .maintenance-badge-list {
+        top: 10px; 
+        right: 10px;
+    }
+}
+/* Homepage Dua Kolom List View Styles */
+.main-title {
+    color: #343a40;
+}
+
+.custom-alert-main {
+    border-left: 4px solid #0dcaf0;
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+.tool-list-table-container { /* Menggantikan .tool-list-container */
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); /* Bayangan sedikit berbeda */
+    overflow: hidden;
+}
+
+.tool-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 1.5rem; /* Padding disesuaikan */
+    text-decoration: none;
+    color: #212529;
+    border-bottom: 1px solid #f0f3f7; /* Border lebih halus */
+    transition: background-color 0.25s ease, transform 0.2s ease-out;
+    position: relative;
+}
+
+.tool-list-item:last-child {
+    border-bottom: none;
+}
+
+.tool-list-item:hover {
+    background-color: #f8f9fc; /* Warna hover sedikit berbeda */
+    transform: translateY(-2px); /* Efek angkat sedikit */
+}
+
+.tool-number {
+    font-weight: 600;
+    color: #0d6efd; /* Warna nomor urut */
+    margin-right: 1rem;
+    font-size: 1rem;
+    min-width: 25px; /* Agar lebar nomor konsisten */
+    text-align: right;
+}
+
+.tool-icon-wrapper {
+    flex-shrink: 0;
+    width: 48px; /* Ukuran ikon wrapper sedikit lebih kecil */
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eef2f7; /* Warna latar ikon lebih soft */
+    color: #0d6efd;
+    border-radius: 0.375rem; /* Sudut lebih smooth */
+    margin-right: 1rem;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.tool-list-item:hover .tool-icon-wrapper {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+/* Mengganti fa-2x dengan fa-lg di HTML karena ukuran wrapper ikon lebih kecil */
+
+.tool-details {
+    flex-grow: 1;
+}
+
+.tool-name {
+    font-weight: 600;
+    font-size: 1.05rem; /* Ukuran font nama tool disesuaikan */
+    color: #343a40;
+    margin-bottom: 0.15rem !important;
+}
+
+.tool-description {
+    font-size: 0.85rem; /* Deskripsi lebih kecil */
+    line-height: 1.4;
+    color: #6c757d; /* Warna deskripsi standar */
+}
+
+.tool-action-indicator {
+    margin-left: 0.75rem; /* Margin indikator disesuaikan */
+    color: #adb5bd;
+    font-size: 1rem;
+    transition: transform 0.2s ease-out, color 0.25s ease;
+}
+
+.tool-list-item:hover .tool-action-indicator {
+    transform: translateX(2px);
+    color: #0d6efd;
+}
+
+/* Styling untuk tool dalam mode maintenance (tetap sama) */
+.tool-list-item.maintenance {
+    background-color: #fff8e1; /* Sedikit berbeda untuk maintenance */
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.tool-list-item.maintenance:hover {
+    background-color: #fff3cd;
+    transform: none;
+}
+
+.tool-list-item.maintenance .tool-icon-wrapper {
+    background-color: #ffc107;
+    color: #343a40;
+}
+
+.tool-list-item.maintenance .tool-action-indicator {
+    display: none;
+}
+
+.maintenance-badge-list {
+    position: absolute;
+    top: 8px; /* Disesuaikan sedikit */
+    right: 12px;
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
+    background-color: #ffc107;
+    color: #343a40;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+/* Responsiveness untuk daftar tools */
+@media (max-width: 991.98px) { /* Target lg breakpoint Bootstrap, saat kolom menjadi 1 */
+    .row > .col-lg-6:not(:last-child) .tool-list-table-container {
+        margin-bottom: 1.5rem; /* Tambah margin bawah jika kolom bertumpuk */
+    }
+}
+
+
+@media (max-width: 576px) {
+    .tool-list-item {
+        padding: 1rem; /* Padding lebih kecil di mobile */
+        /* Tidak perlu flex-direction: column lagi jika sudah ada nomor urut */
+    }
+    .tool-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.75rem;
+    }
+    .tool-icon-wrapper i {
+        font-size: 1rem; /* fa-lg akan diskalakan, atau set manual */
+    }
+    .tool-name {
+        font-size: 0.95rem;
+    }
+    .tool-description {
+        font-size: 0.8rem;
+    }
+    .tool-number {
+        margin-right: 0.75rem;
+        font-size: 0.9rem;
+    }
+    .tool-action-indicator {
+        /* Bisa disembunyikan di mobile jika terlalu sempit */
+        /* display: none; */
+    }
+}

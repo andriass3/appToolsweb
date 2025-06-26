@@ -1,0 +1,23 @@
+[
+    {
+        "timestamp": "2025-06-07 23:18:03 WIB",
+        "tool_name": "Prompt Generator",
+        "critic_name": "cacad",
+        "suggestion": "web cacad",
+        "ip_address": "116.206.32.39"
+    },
+    {
+        "timestamp": "2025-06-08 14:21:22 WIB",
+        "tool_name": "Image to Prompt Generator",
+        "critic_name": "anonim",
+        "suggestion": "kamu memberikan gambar vagina untuk seseorang yang berjenis kelamin pria.. itu salah\r\n\r\napakah kamu tidak bisa membuat gambar penis pria?",
+        "ip_address": "180.252.165.224"
+    },
+    {
+        "timestamp": "2025-06-19 19:41:55 WIB",
+        "tool_name": "Cek Validasi Rekening",
+        "critic_name": "Andrias",
+        "suggestion": "Test",
+        "ip_address": "104.28.236.165"
+    }
+]

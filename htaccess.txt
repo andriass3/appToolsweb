@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Aturan untuk sitemap: membuat sitemap.php bisa diakses sebagai sitemap.xml
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+    # Mencegah listing direktori jika tidak ada file index
+    Options -Indexes
+
+    # --- Aturan URL Cantik (Pretty URLs) ---
+
+    # Aturan untuk menyembunyikan .php pada file di root (misal: /about dari about.php)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^([^/.]+)/?$ $1.php [L]
+
+    # Aturan untuk halaman tools: tools/slug/ akan mengarah ke tools/slug/index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^tools/([^/]+)/?$ tools/$1/index.php [L,QSA]
+
+    # Aturan untuk admin: admin/halaman akan mengarah ke admin/halaman.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} ^/andrias/
+    RewriteRule ^admin/([^/]+)/?$ andrias/$1.php [L,QSA]
+    
+</IfModule>
